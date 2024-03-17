@@ -12,3 +12,73 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum Currency {
+  USD
+  COP
+  EUR
+  GBP
+  USDT
+  ETH
+  SOL
+  ADA
+  BTC
+}
+
+model Categories {
+  id                                String                              @id @default(uuid())
+  type                              TransactionType
+  name                              String                              @unique
+  subcategories                     Subcategories[]
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+}
+
+model Subcategories {
+  id                                String                              @id @default(uuid())
+  categoryId                        String
+  category                          Categories                          @relation(fields: [categoryId], references: [id])
+  name                              String                              
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+
+  @@unique([categoryId, name])
+}
+
+model User {
+  id                                String                              @id @default(uuid())
+  name                              String?
+  username                          String                              @unique
+  email                             String                              @unique
+  password                          String
+  accounts                          Account[]
+  groups                            UserGroup[]
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+}
+
+model UserGroup {
+  id                                String                              @id @default(uuid())
+  name                              String                              @unique
+  description                       String
+  users                             User[]
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+}
+
+model Account {
+  id                                String                              @id @default(uuid())
+  name                              String                              
+  userId                            String
+  user                              User                                @relation(fields: [userId], references: [id])
+  currency                          Currency
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+
+  @@unique([name, userId])
+}
