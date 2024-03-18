@@ -2,10 +2,20 @@
 
 import { Separator } from "./ui/separator";
 import Link from "next/link";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Avatar } from "./avatar";
 import { cn } from "@/lib/utils";
-import { Home, Receipt, Wallet } from "lucide-react";
+import { Home, LogOut, Receipt, User, Wallet } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { signoutUser } from "./actions/signout";
+import { useToast } from "./ui/use-toast";
 
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: Home },
@@ -20,6 +30,21 @@ export function Sidebar({
   username: string;
   isOpen: boolean;
 }) {
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    console.log("signing out");
+    const result = await signoutUser();
+
+    if (result.status) {
+      toast({
+        title: "Signed out",
+        description: `${result.message}.`,
+      });
+      window.location.href = "/auth/signin";
+    }
+  };
+
   return (
     <>
       <div
@@ -28,19 +53,34 @@ export function Sidebar({
         }`}
       >
         <div className="flex p-2">
-          <Link
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "w-full flex items-center justify-start"
-            )}
-            href="/dashboard/profile"
-          >
-            <div className="mr-2">
-              <Avatar username={username} />
-            </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-start"
+              >
+                <div className="mr-2">
+                  <Avatar username={username} />
+                </div>
 
-            <div>{username}</div>
-          </Link>
+                <div>{username}</div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[283px]">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link href="/dashboard/profile" className="flex w-full">
+                  <User className="w-4 h-4 mr-2" /> Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut}>
+                <div className="flex text-red-500 w-full">
+                  <LogOut className="w-4 h-4 mr-2" /> Sign Out
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Separator />
         <div className="py-2">
