@@ -53,7 +53,7 @@ export function SigninForm() {
     if (result.status) {
       toast({
         title: "Signed in",
-        description: `Signed in as ${result.data}.`,
+        description: `Signed in as ${result.data?.user.username}.`,
       });
 
       router.push("/dashboard");

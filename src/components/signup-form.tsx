@@ -72,7 +72,7 @@ export function SignupForm() {
     if (result.status) {
       toast({
         title: "User registered!",
-        description: `User with username ${result.data} has been succesfully created.`,
+        description: `User ${result.data?.user.username} has been succesfully created.`,
       });
 
       setTimeout(() => {

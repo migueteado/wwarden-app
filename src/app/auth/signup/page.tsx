@@ -1,5 +1,5 @@
-import FrontMessage from "@/components/FrontMessage";
-import { SignupForm } from "@/components/SignupForm";
+import FrontMessage from "@/components/front-message";
+import { SignupForm } from "@/components/signup-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -5,7 +5,7 @@ import { compare } from "bcrypt";
 import { ENV } from "@/lib/env";
 import { signJWT } from "@/lib/jwt";
 import { cookies } from "next/headers";
-import { SigninUserInput } from "../SigninForm";
+import { SigninUserInput } from "../sigin-form";
 
 export async function signinUser(data: SigninUserInput) {
   try {
@@ -27,20 +27,29 @@ export async function signinUser(data: SigninUserInput) {
     );
 
     const tokenMaxAge = parseInt(JWT_EXPIRY) * 86400;
-    const cookieOptions = {
+
+    cookies().set({
       name: "token",
       value: token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV !== "development",
       maxAge: tokenMaxAge,
-    };
+    });
 
-    cookies().set(cookieOptions);
+    cookies().set({
+      name: "username",
+      value: existentUser.username,
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV !== "development",
+      maxAge: tokenMaxAge,
+    });
 
+    const { password, ...user } = existentUser;
     return {
       status: true,
-      data: existentUser.username,
+      data: { user },
     };
   } catch (err: unknown) {
     return {

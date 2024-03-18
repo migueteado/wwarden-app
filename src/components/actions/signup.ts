@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { SignupUserInput } from "../SignupForm";
+import { SignupUserInput } from "../signup-form";
 import { hash } from "bcrypt";
 import { ENV } from "@/lib/env";
 import { signJWT } from "@/lib/jwt";
@@ -37,20 +37,29 @@ export async function signupUser(data: SignupUserInput) {
     );
 
     const tokenMaxAge = parseInt(JWT_EXPIRY) * 86400;
-    const cookieOptions = {
+    cookies().set({
       name: "token",
       value: token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV !== "development",
       maxAge: tokenMaxAge,
-    };
+    });
 
-    cookies().set(cookieOptions);
+    cookies().set({
+      name: "username",
+      value: createdUser.username,
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV !== "development",
+      maxAge: tokenMaxAge,
+    });
+
+    const { password: _, ...user } = createdUser;
 
     return {
       status: true,
-      data: createdUser.username,
+      data: { user },
     };
   } catch (err: unknown) {
     return {
