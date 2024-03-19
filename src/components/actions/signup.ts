@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { SignupUserInput } from "../signup-form";
+import { SignupUserInput } from "../../app/auth/signup/signup-form";
 import { hash } from "bcrypt";
 import { ENV } from "@/lib/env";
 import { signJWT } from "@/lib/jwt";
@@ -32,7 +32,11 @@ export async function signupUser(data: SignupUserInput) {
     });
 
     const token = await signJWT(
-      { sub: createdUser.id },
+      {
+        sub: createdUser.id,
+        username: createdUser.username,
+        email: createdUser.email,
+      },
       { exp: `${JWT_EXPIRY}d` }
     );
 
@@ -40,15 +44,6 @@ export async function signupUser(data: SignupUserInput) {
     cookies().set({
       name: "token",
       value: token,
-      httpOnly: true,
-      path: "/",
-      secure: process.env.NODE_ENV !== "development",
-      maxAge: tokenMaxAge,
-    });
-
-    cookies().set({
-      name: "username",
-      value: createdUser.username,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV !== "development",

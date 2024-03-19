@@ -1,17 +1,14 @@
 import { cookies } from "next/headers";
-import { verifyJWT } from "./jwt";
-import prisma from "./prisma";
+import { JWTPayload, verifyJWT } from "./jwt";
 
-export const getUser = async () => {
+export const getUser = async (): Promise<JWTPayload | null> => {
   const token = cookies().get("token")?.value;
 
   if (!token) {
     return null;
   }
 
-  const { sub } = await verifyJWT<{ sub: string }>(token);
-
-  const user = prisma.user.findUnique({ where: { id: sub } });
+  const user = await verifyJWT(token);
 
   return user;
 };

@@ -5,7 +5,7 @@ import { compare } from "bcrypt";
 import { ENV } from "@/lib/env";
 import { signJWT } from "@/lib/jwt";
 import { cookies } from "next/headers";
-import { SigninUserInput } from "../sigin-form";
+import { SigninUserInput } from "../../app/auth/signin/sigin-form";
 
 export async function signinUser(data: SigninUserInput) {
   try {
@@ -22,7 +22,11 @@ export async function signinUser(data: SigninUserInput) {
     }
 
     const token = await signJWT(
-      { sub: existentUser.id },
+      {
+        sub: existentUser.id,
+        username: existentUser.username,
+        email: existentUser.email,
+      },
       { exp: `${JWT_EXPIRY}d` }
     );
 
@@ -31,15 +35,6 @@ export async function signinUser(data: SigninUserInput) {
     cookies().set({
       name: "token",
       value: token,
-      httpOnly: true,
-      path: "/",
-      secure: process.env.NODE_ENV !== "development",
-      maxAge: tokenMaxAge,
-    });
-
-    cookies().set({
-      name: "username",
-      value: existentUser.username,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV !== "development",

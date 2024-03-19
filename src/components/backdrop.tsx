@@ -11,9 +11,9 @@ export default function Backdrop({ isOpen, toggle }: BackdropProps) {
   return (
     <div
       onClick={handleToggle}
-      className={`bg-inherit fixed transition-opacity ${
+      className={`bg-black fixed top-0 transition-opacity ${
         isOpen
-          ? "opacity-80 block w-screen h-screen bg-inherit"
+          ? "opacity-70 block w-screen h-screen bg-black"
           : "opacity-0 hidden w-0 h-0"
       }`}
     />

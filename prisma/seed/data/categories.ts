@@ -316,6 +316,15 @@ const CATEGORIES = [
       },
     ],
   },
+  {
+    type: $Enums.TransactionType.ADJUSTMENT,
+    categories: [
+      {
+        name: "Ajustes",
+        subcategories: ["Ajuste de Billetera", "Balance Inicial"],
+      },
+    ],
+  },
 ];
 
 const categories: Prisma.CategoriesUpsertArgs[] = [];
@@ -368,8 +377,8 @@ export const seedCategories = async (prismaClient: PrismaClient) => {
 
             console.log(
               categoryResult.id,
-              categoryResult.name,
-              categoryResult.type
+              transactionType.type,
+              categoryResult.name
             );
 
             for (const subcategory of subcategories) {
@@ -395,8 +404,9 @@ export const seedCategories = async (prismaClient: PrismaClient) => {
 
               console.log(
                 subcategoryResult.id,
-                subcategoryResult.name,
-                subcategoryResult.categoryId
+                transactionType.type,
+                categoryResult.name,
+                subcategoryResult.name
               );
             }
           }

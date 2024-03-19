@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button, buttonVariants } from "./ui/button";
 import { Avatar } from "./avatar";
 import { cn } from "@/lib/utils";
-import { Home, LogOut, Receipt, User, Wallet } from "lucide-react";
+import { Home, LogOut, Receipt, User as UserIcon, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,18 +16,19 @@ import {
 } from "./ui/dropdown-menu";
 import { signoutUser } from "./actions/signout";
 import { useToast } from "./ui/use-toast";
+import { JWTPayload } from "@/lib/jwt";
 
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: Home },
-  { title: "Accounts", href: "/dashboard/accounts", icon: Wallet },
+  { title: "Wallets", href: "/dashboard/wallets", icon: Wallet },
   { title: "Transactions", href: "/dashboard/transactions", icon: Receipt },
 ];
 
 export function Sidebar({
-  username,
+  user,
   isOpen,
 }: {
-  username: string;
+  user: JWTPayload;
   isOpen: boolean;
 }) {
   const { toast } = useToast();
@@ -60,10 +61,10 @@ export function Sidebar({
                 className="w-full flex items-center justify-start"
               >
                 <div className="mr-2">
-                  <Avatar username={username} />
+                  <Avatar username={user.username} />
                 </div>
 
-                <div>{username}</div>
+                <div>{user.username}</div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[283px]">
@@ -71,7 +72,7 @@ export function Sidebar({
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Link href="/dashboard/profile" className="flex w-full">
-                  <User className="w-4 h-4 mr-2" /> Profile
+                  <UserIcon className="w-4 h-4 mr-2" /> Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut}>

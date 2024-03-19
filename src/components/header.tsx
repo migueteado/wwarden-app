@@ -9,7 +9,7 @@ interface HeaderProps {
 export default function Header({ title, toggleSidebar }: HeaderProps) {
   return (
     <>
-      <div className="fiex fixed top-0 right-0 left-0 lg:left-[300px]">
+      <div className="bg-inherit fixed top-0 right-0 left-0 lg:left-[300px]">
         <header className="w-full border-b">
           <div className="flex items-center w-full px-2 py-2">
             <div className="block lg:hidden mr-2">

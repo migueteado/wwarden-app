@@ -11,11 +11,13 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum TransactionType {
   INCOME
   EXPENSE
+  ADJUSTMENT
 }
 
 enum Currency {
@@ -35,6 +37,7 @@ model Categories {
   type                              TransactionType
   name                              String                              @unique
   subcategories                     Subcategories[]
+  transactions                      Transaction[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }
@@ -44,6 +47,7 @@ model Subcategories {
   categoryId                        String
   category                          Categories                          @relation(fields: [categoryId], references: [id])
   name                              String                              
+  transactions                      Transaction[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 
@@ -55,29 +59,41 @@ model User {
   username                          String                              @unique
   email                             String                              @unique
   password                          String
-  accounts                          Account[]
-  groups                            UserGroup[]
+  wallets                           Wallet[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }
 
-model UserGroup {
+model Wallet {
   id                                String                              @id @default(uuid())
-  name                              String                              @unique
-  description                       String
-  users                             User[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
-}
-
-model Account {
-  id                                String                              @id @default(uuid())
+  platform                          String
   name                              String                              
   userId                            String
   user                              User                                @relation(fields: [userId], references: [id])
   currency                          Currency
+  balance                           Decimal                             @db.Decimal(10, 2)
+  transactions                      Transaction[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 
   @@unique([name, userId])
+}
+
+model Transaction {
+  id                                String                              @id @default(uuid())
+  walletId                          String
+  wallet                            Wallet                              @relation(fields: [walletId], references: [id])
+  categoryId                        String
+  category                          Categories                          @relation(fields: [categoryId], references: [id])
+  subcategoryId                     String
+  subcategory                       Subcategories                       @relation(fields: [subcategoryId], references: [id])
+  type                              TransactionType
+  amount                            Decimal                             @db.Decimal(10, 2)
+  previousBalance                   Decimal                             @db.Decimal(10, 2)
+  newBalance                        Decimal                             @db.Decimal(10, 2)
+  entity                            String?
+  description                       String?
+  date                              DateTime
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
 }
