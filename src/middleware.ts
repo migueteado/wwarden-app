@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest) {
   const response = NextResponse.next();
 
   try {
-    const { sub } = await verifyJWT<{ sub: string }>(token);
+    const { sub } = await verifyJWT(token);
     (req as AuthenticatedRequest).user = { id: sub };
   } catch (err: unknown) {
     return NextResponse.redirect(new URL("/auth/signin", req.url));
