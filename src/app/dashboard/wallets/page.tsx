@@ -20,11 +20,9 @@ export default async function DashboardWallets() {
 
   return (
     <DashboardLayout title="Wallets" user={user}>
-      <div className="flex items-center justify-start pb-2">
+      <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
         <AddWallet />
       </div>
-
-      <Separator />
       <div className="py-2 flex justify-center items-center">
         {wallets.length > 0 ? (
           <WalletList wallets={wallets} />

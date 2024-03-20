@@ -82,11 +82,11 @@ model Wallet {
 model Transaction {
   id                                String                              @id @default(uuid())
   walletId                          String
-  wallet                            Wallet                              @relation(fields: [walletId], references: [id])
+  wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
   categoryId                        String
-  category                          Categories                          @relation(fields: [categoryId], references: [id])
+  category                          Categories                          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   subcategoryId                     String
-  subcategory                       Subcategories                       @relation(fields: [subcategoryId], references: [id])
+  subcategory                       Subcategories                       @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
   type                              TransactionType
   amount                            Decimal                             @db.Decimal(10, 2)
   previousBalance                   Decimal                             @db.Decimal(10, 2)

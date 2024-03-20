@@ -19,8 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import React from "react";
+import WalletActions from "./wallet-actions";
 
 export type CustomWallet = Omit<Wallet, "balance"> & { balance: number };
 
@@ -44,15 +45,32 @@ export const columns: ColumnDef<CustomWallet>[] = [
       );
     },
     cell: ({ row }) => {
-      const balance = parseFloat(row.getValue("balance"));
-      const formatted = new Intl.NumberFormat("en-US").format(balance);
+      const wallet = row.original;
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      const formatted = new Intl.NumberFormat("en-US").format(wallet.balance);
+
+      return (
+        <div className="text-right font-medium flex items-center justify-end text-md">
+          <div className="text-xs mr-2 text-slate-500">{wallet.currency}</div>{" "}
+          {formatted}
+        </div>
+      );
     },
   },
   {
-    accessorKey: "currency",
-    header: "Currency",
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const wallet = row.original;
+
+      return (
+        <div className="flex items-center justify-end">
+          <WalletActions
+            wallet={{ ...wallet, balance: Number(wallet.balance) }}
+          />
+        </div>
+      );
+    },
   },
 ];
 
@@ -158,5 +176,10 @@ interface WalletListProps {
 }
 
 export function WalletList({ wallets }: WalletListProps) {
-  return <DataTable columns={columns} data={wallets} />;
+  return (
+    <DataTable
+      columns={columns}
+      data={wallets.sort((a, b) => b.balance - a.balance)}
+    />
+  );
 }
