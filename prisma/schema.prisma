@@ -60,6 +60,7 @@ model User {
   email                             String                              @unique
   password                          String
   wallets                           Wallet[]
+  households                        HouseholdMember[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }
@@ -73,6 +74,7 @@ model Wallet {
   currency                          Currency
   balance                           Decimal                             @db.Decimal(10, 2)
   transactions                      Transaction[]
+  householdWallets                  HouseholdWallet[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 
@@ -96,4 +98,44 @@ model Transaction {
   date                              DateTime
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
+}
+
+model Household {
+  id                                String                              @id @default(uuid())
+  name                              String
+  members                           HouseholdMember[]
+  wallets                           HouseholdWallet[]
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+}
+
+enum HouseholdMemberType {
+  OWNER
+  MEMBER
+  GUEST
+}
+
+model HouseholdMember {
+  id                                String                              @id @default(uuid())
+  householdId                       String
+  household                         Household                           @relation(fields: [householdId], references: [id])
+  userId                            String
+  user                              User                                @relation(fields: [userId], references: [id])
+  type                              HouseholdMemberType
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+
+  @@unique([householdId, userId])
+}
+
+model HouseholdWallet {
+  id                                String                              @id @default(uuid())
+  householdId                       String
+  household                         Household                           @relation(fields: [householdId], references: [id])
+  walletId                          String
+  wallet                            Wallet                              @relation(fields: [walletId], references: [id])
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+
+  @@unique([householdId, walletId])
 }
