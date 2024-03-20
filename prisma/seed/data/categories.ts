@@ -327,7 +327,7 @@ const CATEGORIES = [
   },
 ];
 
-const categories: Prisma.CategoriesUpsertArgs[] = [];
+const categories: Prisma.CategoryUpsertArgs[] = [];
 for (const transactionType of CATEGORIES) {
   for (const category of transactionType.categories) {
     const subcategories = [];
@@ -364,7 +364,7 @@ export const seedCategories = async (prismaClient: PrismaClient) => {
             for (const subcategory of category.subcategories) {
               subcategories.push({ name: subcategory });
             }
-            const categoryResult = await tx.categories.upsert({
+            const categoryResult = await tx.category.upsert({
               where: { name: category.name },
               create: {
                 type: transactionType.type,
@@ -382,7 +382,7 @@ export const seedCategories = async (prismaClient: PrismaClient) => {
             );
 
             for (const subcategory of subcategories) {
-              const subcategoryResult = await tx.subcategories.upsert({
+              const subcategoryResult = await tx.subcategory.upsert({
                 where: {
                   categoryId_name: {
                     categoryId: categoryResult.id,
@@ -412,8 +412,8 @@ export const seedCategories = async (prismaClient: PrismaClient) => {
           }
         }
 
-        const categoriesCount = await tx.categories.count();
-        const subcategoriesCount = await tx.subcategories.count();
+        const categoriesCount = await tx.category.count();
+        const subcategoriesCount = await tx.subcategory.count();
 
         return {
           categoriesCount,

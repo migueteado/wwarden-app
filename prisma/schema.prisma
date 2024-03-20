@@ -32,20 +32,20 @@ enum Currency {
   BTC
 }
 
-model Categories {
+model Category {
   id                                String                              @id @default(uuid())
   type                              TransactionType
   name                              String                              @unique
-  subcategories                     Subcategories[]
+  subcategories                     Subcategory[]
   transactions                      Transaction[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }
 
-model Subcategories {
+model Subcategory {
   id                                String                              @id @default(uuid())
   categoryId                        String
-  category                          Categories                          @relation(fields: [categoryId], references: [id])
+  category                          Category                         @relation(fields: [categoryId], references: [id])
   name                              String                              
   transactions                      Transaction[]
   createdAt                         DateTime                            @default(now())
@@ -75,6 +75,8 @@ model Wallet {
   balance                           Decimal                             @db.Decimal(10, 2)
   transactions                      Transaction[]
   householdWallets                  HouseholdWallet[]
+  transfersFrom                     Transfer[]                          @relation(name: "TransferFromWallet")
+  transfersTo                       Transfer[]                          @relation(name: "TransferToWallet")
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 
@@ -86,16 +88,31 @@ model Transaction {
   walletId                          String
   wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
   categoryId                        String
-  category                          Categories                          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category                          Category                            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   subcategoryId                     String
-  subcategory                       Subcategories                       @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
+  subcategory                       Subcategory                         @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
   type                              TransactionType
   amount                            Decimal                             @db.Decimal(10, 2)
-  previousBalance                   Decimal                             @db.Decimal(10, 2)
-  newBalance                        Decimal                             @db.Decimal(10, 2)
   entity                            String?
   description                       String?
   date                              DateTime
+  transfersFrom                     Transfer?                           @relation(name: "TransferFromTransaction")
+  transfersTo                       Transfer?                           @relation(name: "TransferToTransaction")
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
+}
+
+model Transfer {
+  id                                String                              @id @default(uuid())
+  fromWalletId                      String
+  fromWallet                        Wallet                              @relation(name: "TransferFromWallet", fields: [fromWalletId], references: [id], onDelete: Cascade)
+  toWalletId                        String
+  toWallet                          Wallet                              @relation(name: "TransferToWallet", fields: [toWalletId], references: [id], onDelete: Cascade)
+  fromTransaction                   Transaction                         @relation(name: "TransferFromTransaction", fields: [fromTransactionId], references: [id], onDelete: Cascade)
+  fromTransactionId                 String                              @unique
+  toTransaction                     Transaction                         @relation(name: "TransferToTransaction", fields: [toTransactionId], references: [id], onDelete: Cascade)
+  toTransactionId                   String                              @unique
+  fee                               Decimal                             @db.Decimal(10, 2)
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }

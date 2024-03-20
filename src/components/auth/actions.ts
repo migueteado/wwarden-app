@@ -1,6 +1,5 @@
 "use server";
 
-import prisma from "@/lib/prisma";
 import { compare } from "bcrypt";
 import { ENV } from "@/lib/env";
 import { signJWT } from "@/lib/jwt";
@@ -8,6 +7,9 @@ import { hash } from "bcrypt";
 import { cookies } from "next/headers";
 import { SigninUserInput } from "../auth/sigin-form";
 import { SignupUserInput } from "./signup-form";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function signupUser(data: SignupUserInput) {
   try {

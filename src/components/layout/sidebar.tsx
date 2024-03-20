@@ -5,7 +5,15 @@ import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
 import { Avatar } from "../avatar";
 import { cn } from "@/lib/utils";
-import { Home, LogOut, Receipt, User as UserIcon, Wallet } from "lucide-react";
+import {
+  ArrowRightLeftIcon,
+  HomeIcon,
+  LayoutDashboardIcon,
+  LogOut,
+  ReceiptIcon,
+  UserIcon,
+  WalletIcon,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +27,15 @@ import { JWTPayload } from "@/lib/jwt";
 import { signoutUser } from "../auth/actions";
 
 const menuItems = [
-  { title: "Dashboard", href: "/dashboard/", icon: Home },
-  { title: "Wallets", href: "/dashboard/wallets", icon: Wallet },
-  { title: "Transactions", href: "/dashboard/transactions", icon: Receipt },
+  { title: "Dashboard", href: "/dashboard/", icon: LayoutDashboardIcon },
+  { title: "Wallets", href: "/dashboard/wallets", icon: WalletIcon },
+  {
+    title: "Transfers",
+    href: "/dashboard/transfers",
+    icon: ArrowRightLeftIcon,
+  },
+  { title: "Transactions", href: "/dashboard/transactions", icon: ReceiptIcon },
+  { title: "Households", href: "/dashboard/households", icon: HomeIcon },
 ];
 
 export function Sidebar({

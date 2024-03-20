@@ -111,8 +111,8 @@ export default function AddWallet({ iconButton }: AddWalletProps) {
           </Button>
         ) : (
           <Button>
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add Wallet
+            <PlusIcon className="h-4 w-4 lg:mr-2" />
+            <span className="hidden lg:block">Add Wallet</span>
           </Button>
         )}
       </DialogTrigger>
