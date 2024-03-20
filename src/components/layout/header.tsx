@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Menu as MenuIcon } from "lucide-react";
 import { ThemeToggler } from "./theme-toggler";
 

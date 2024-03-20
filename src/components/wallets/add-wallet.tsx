@@ -1,9 +1,9 @@
 "use client";
 
 import { z } from "zod";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { $Enums } from "@prisma/client";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "../ui/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,21 +13,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "../ui/form";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+} from "../ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon, Ellipsis, PlusIcon } from "lucide-react";
-import { Calendar } from "./ui/calendar";
+import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
-import { createWallet } from "./actions/create-wallet";
 import { useRouter } from "next/navigation";
 import React from "react";
 import {
@@ -37,7 +36,8 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogContent,
-} from "./ui/dialog";
+} from "../ui/dialog";
+import { createWallet } from "./actions";
 
 export const CreateWalletSchema = z.object({
   name: z

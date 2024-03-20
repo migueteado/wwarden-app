@@ -1,9 +1,9 @@
 "use client";
 
-import { Separator } from "./ui/separator";
+import { Separator } from "../ui/separator";
 import Link from "next/link";
-import { Button, buttonVariants } from "./ui/button";
-import { Avatar } from "./avatar";
+import { Button, buttonVariants } from "../ui/button";
+import { Avatar } from "../avatar";
 import { cn } from "@/lib/utils";
 import { Home, LogOut, Receipt, User as UserIcon, Wallet } from "lucide-react";
 import {
@@ -13,10 +13,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { signoutUser } from "./actions/signout";
-import { useToast } from "./ui/use-toast";
+} from "../ui/dropdown-menu";
+import { useToast } from "../ui/use-toast";
 import { JWTPayload } from "@/lib/jwt";
+import { signoutUser } from "../auth/actions";
 
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: Home },

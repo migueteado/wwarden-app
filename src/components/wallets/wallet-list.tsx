@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { ArrowUpDown } from "lucide-react";
 import React from "react";
 import WalletActions from "./wallet-actions";

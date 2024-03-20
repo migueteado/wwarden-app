@@ -12,12 +12,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../../components/ui/form";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { useToast } from "../../../components/ui/use-toast";
+} from "../ui/form";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { useToast } from "../ui/use-toast";
 import Link from "next/link";
-import { signupUser } from "../../../components/actions/signup";
+import { signupUser } from "./actions";
 
 export const SignupUserSchema = z
   .object({

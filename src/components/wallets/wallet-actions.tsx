@@ -9,8 +9,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
+} from "../ui/dialog";
+import { Button } from "../ui/button";
 import { Ellipsis, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -27,23 +27,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import { useRouter } from "next/navigation";
-import { useToast } from "./ui/use-toast";
-import { deleteWallet } from "./actions/delete-wallet";
+import { useToast } from "../ui/use-toast";
 import { $Enums, Wallet } from "@prisma/client";
-import { updateWallet } from "./actions/update-wallet";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
+import { deleteWallet, updateWallet } from "./actions";
 
 export const UpdateWalletSchema = z.object({
   id: z.string(),
@@ -222,6 +221,11 @@ function UpdateWallet({
   );
 }
 
+export const DeleteWalletSchema = z.object({
+  id: z.string(),
+});
+
+export type DeleteWalletInput = z.infer<typeof DeleteWalletSchema>;
 interface DeleteWalletProps {
   wallet: Omit<Wallet, "balance"> & { balance: number };
   isLoading: boolean;

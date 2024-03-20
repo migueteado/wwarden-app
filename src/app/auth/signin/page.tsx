@@ -1,5 +1,5 @@
 import FrontMessage from "@/components/front-message";
-import { SigninForm } from "@/app/auth/signin/sigin-form";
+import { SigninForm } from "@/components/auth/sigin-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

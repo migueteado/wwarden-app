@@ -1,8 +1,8 @@
-import AddWallet from "@/components/add-wallet";
-import { DashboardLayout } from "@/components/dashboard-layout";
+import AddWallet from "@/components/wallets/add-wallet";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { EmptyMessage } from "@/components/empty-message";
 import { Separator } from "@/components/ui/separator";
-import { WalletList } from "@/components/wallet-list";
+import { WalletList } from "@/components/wallets/wallet-list";
 import { getUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";

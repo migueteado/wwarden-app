@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/dashboard-layout";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { getUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
