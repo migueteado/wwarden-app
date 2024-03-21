@@ -6,6 +6,7 @@ export const householdSelect = Prisma.validator<Prisma.HouseholdSelect>()({
   members: {
     select: {
       id: true,
+      type: true,
       user: {
         select: {
           id: true,
@@ -18,7 +19,14 @@ export const householdSelect = Prisma.validator<Prisma.HouseholdSelect>()({
   wallets: {
     select: {
       id: true,
-      wallet: { select: { id: true, name: true, currency: true } },
+      wallet: {
+        select: {
+          id: true,
+          name: true,
+          currency: true,
+          user: { select: { username: true } },
+        },
+      },
     },
   },
 });

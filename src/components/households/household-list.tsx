@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowUpDown, UsersIcon, WalletIcon } from "lucide-react";
+import { UsersIcon, WalletIcon } from "lucide-react";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { CustomHousehold } from "./custom-types";

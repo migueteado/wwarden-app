@@ -1,5 +1,7 @@
+"use server";
+
 import { householdSelect } from "@/components/households/custom-types";
-import HouseholdView from "@/components/households/household-view";
+import HouseholdSettings from "@/components/households/household-settings";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { getUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -28,9 +30,15 @@ export default async function Household({
     redirect("/households");
   }
 
+  const wallets = (
+    await prisma.wallet.findMany({
+      where: { userId: user.sub },
+    })
+  ).map((wallet) => ({ ...wallet, balance: Number(wallet.balance) }));
+
   return (
-    <DashboardLayout title={`Households`} user={user}>
-      <HouseholdView household={household} />
+    <DashboardLayout title={`Household ${household.name}`} user={user}>
+      <HouseholdSettings household={household} wallets={wallets} />
     </DashboardLayout>
   );
 }
