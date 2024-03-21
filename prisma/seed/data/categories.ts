@@ -49,6 +49,7 @@ const CATEGORIES = [
           "Herencia",
           "Obsequios",
           "Pension alimenticia o manutencion infantil",
+          "Transferencias Internas",
         ],
       },
       {

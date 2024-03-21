@@ -19,10 +19,12 @@ import {
 import { Button } from "../ui/button";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { CustomTransaction } from "./custom-type";
+import { CustomCategory, CustomTransaction, CustomWallet } from "./custom-type";
 import TransactionActions from "./transaction-actions";
 
-export const columns: ColumnDef<CustomTransaction>[] = [
+export const columns: ColumnDef<
+  CustomTransaction & { wallets: CustomWallet[]; categories: CustomCategory[] }
+>[] = [
   {
     accessorKey: "date",
     header: "Date",
@@ -144,6 +146,8 @@ export const columns: ColumnDef<CustomTransaction>[] = [
         <div className="flex items-center justify-end">
           <TransactionActions
             transaction={{ ...transaction, amount: Number(transaction.amount) }}
+            categories={row.original.categories}
+            wallets={row.original.wallets}
           />
         </div>
       );
@@ -231,12 +235,16 @@ export function DataTable<TData, TValue>({
 
 interface TransactionListProps {
   transactions: CustomTransaction[];
+  wallets: CustomWallet[];
+  categories: CustomCategory[];
   page: number;
   pages: number;
 }
 
 export function TransactionList({
   transactions,
+  wallets,
+  categories,
   page,
   pages,
 }: TransactionListProps) {
@@ -253,7 +261,14 @@ export function TransactionList({
 
   return (
     <div className="flex flex-col w-full">
-      <DataTable columns={columns} data={transactions} />
+      <DataTable
+        columns={columns}
+        data={transactions.map((t) => ({
+          ...t,
+          wallets: wallets,
+          categories: categories,
+        }))}
+      />
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"

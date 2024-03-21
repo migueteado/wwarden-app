@@ -8,12 +8,12 @@ export const transactionSelect = Prisma.validator<Prisma.TransactionSelect>()({
   type: true,
   date: true,
   category: {
-    select: { name: true },
+    select: { id: true, name: true },
   },
   subcategory: {
-    select: { name: true },
+    select: { id: true, name: true },
   },
-  wallet: { select: { currency: true, name: true } },
+  wallet: { select: { id: true, currency: true, name: true } },
 });
 
 export type CustomTransaction = Omit<

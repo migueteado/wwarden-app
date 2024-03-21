@@ -7,9 +7,7 @@ import { hash } from "bcrypt";
 import { cookies } from "next/headers";
 import { SigninUserInput } from "../auth/sigin-form";
 import { SignupUserInput } from "./signup-form";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function signupUser(data: SignupUserInput) {
   try {

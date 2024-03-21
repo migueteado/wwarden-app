@@ -4,10 +4,7 @@ import { EmptyMessage } from "@/components/empty-message";
 import { WalletList } from "@/components/wallets/wallet-list";
 import { getUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
+import prisma from "@/lib/prisma";
 export default async function DashboardWallets({
   searchParams,
 }: {

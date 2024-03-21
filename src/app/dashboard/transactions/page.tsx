@@ -1,7 +1,7 @@
 "use server";
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import AddTransaction from "@/components/transactions/add-transaction";
+import CreateTransactionForm from "@/components/transactions/create-transaction-form";
 import {
   categorySelect,
   transactionSelect,
@@ -9,10 +9,9 @@ import {
 } from "@/components/transactions/custom-type";
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { getUser } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
-const prisma = new PrismaClient();
 export default async function DashboardTransactions({
   searchParams,
 }: {
@@ -64,11 +63,13 @@ export default async function DashboardTransactions({
   return (
     <DashboardLayout title="Transactions" user={user}>
       <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
-        <AddTransaction wallets={wallets} categories={categories} />
+        <CreateTransactionForm wallets={wallets} categories={categories} />
       </div>
       <div className="py-2 flex justify-center items-center">
         <TransactionList
           transactions={transactions}
+          wallets={wallets}
+          categories={categories}
           page={page}
           pages={pages}
         />

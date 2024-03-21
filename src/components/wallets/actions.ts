@@ -5,9 +5,7 @@ import { cookies } from "next/headers";
 import { verifyJWT } from "@/lib/jwt";
 import { DeleteWalletInput } from "../wallets/wallet-actions";
 import { UpdateWalletInput } from "../wallets/wallet-actions";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function createWallet(data: CreateWalletInput) {
   try {

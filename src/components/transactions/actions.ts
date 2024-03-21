@@ -2,13 +2,10 @@
 
 import { cookies } from "next/headers";
 import { verifyJWT } from "@/lib/jwt";
-import { DeleteWalletInput } from "../wallets/wallet-actions";
-import { UpdateWalletInput } from "../wallets/wallet-actions";
-import { PrismaClient } from "@prisma/client";
-import { CreateTransactionInput } from "./add-transaction";
-import { DeleteTransactionInput } from "./transaction-actions";
-
-const prisma = new PrismaClient();
+import { CreateTransactionInput } from "./create-transaction-form";
+import { DeleteTransactionInput } from "./delete-transaction-form";
+import { UpdateTransactionInput } from "./update-transaction-form";
+import prisma from "@/lib/prisma";
 
 export async function createTransaction(data: CreateTransactionInput) {
   try {
@@ -24,7 +21,7 @@ export async function createTransaction(data: CreateTransactionInput) {
       throw new Error("Unauthorized");
     }
 
-    const { wallet, transaction } = await prisma.$transaction(async (tx) => {
+    const { transaction } = await prisma.$transaction(async (tx) => {
       const existentWallet = await prisma.wallet.findUnique({
         where: { id: data.walletId },
       });
@@ -33,16 +30,12 @@ export async function createTransaction(data: CreateTransactionInput) {
         throw new Error("Wallet not found");
       }
 
-      let amount = data.amount;
-      if (data.type === "EXPENSE") {
-        if (Number(existentWallet.balance) < data.amount) {
-          throw new Error("Insufficient funds");
-        }
-        amount = -data.amount;
-      }
-
+      let amount = data.type === "EXPENSE" ? -data.amount : data.amount;
       const previousBalance = Number(existentWallet.balance);
       const newBalance = previousBalance + amount;
+      if (newBalance < 0) {
+        throw new Error("Insufficient funds");
+      }
 
       const transaction = await prisma.transaction.create({
         data: {
@@ -51,18 +44,17 @@ export async function createTransaction(data: CreateTransactionInput) {
         },
       });
 
-      const wallet = await prisma.wallet.update({
+      await prisma.wallet.update({
         where: { id: data.walletId },
         data: { balance: newBalance },
       });
 
-      return { wallet, transaction };
+      return { transaction };
     });
 
     return {
       status: true,
       data: {
-        wallet: { ...wallet, balance: Number(wallet.balance) },
         transaction: { ...transaction, amount: Number(transaction.amount) },
       },
     };
@@ -74,7 +66,7 @@ export async function createTransaction(data: CreateTransactionInput) {
   }
 }
 
-export async function updateWallet(data: UpdateWalletInput) {
+export async function updateTransaction(data: UpdateTransactionInput) {
   try {
     const token = cookies().get("token")?.value ?? "";
 
@@ -88,49 +80,76 @@ export async function updateWallet(data: UpdateWalletInput) {
       throw new Error("Unauthorized");
     }
 
-    const subcategory = await prisma.subcategory.findFirst({
-      where: { name: "Ajuste de Billetera" },
+    const prevTransaction = await prisma.transaction.findFirst({
+      where: { id: data.id },
+      include: { wallet: true },
     });
 
-    if (!subcategory) {
-      throw new Error("Subcategory not found");
+    if (!prevTransaction) {
+      throw new Error("Transaction not found");
     }
 
-    const prevWallet = await prisma.wallet.findFirst({
-      where: { id: data.id },
+    const newWallet = await prisma.wallet.findFirst({
+      where: { id: data.walletId },
     });
 
-    if (!prevWallet) {
+    if (!newWallet) {
       throw new Error("Wallet not found");
     }
 
-    const { wallet, transaction } = await prisma.$transaction(async (tx) => {
-      let transaction = null;
-      const prevWalletBalance = Number(prevWallet.balance);
-      if (prevWalletBalance !== data.balance) {
-        transaction = await prisma.transaction.create({
-          data: {
-            walletId: prevWallet.id,
-            type: "ADJUSTMENT",
-            amount: data.balance - prevWalletBalance,
-            categoryId: subcategory.categoryId,
-            subcategoryId: subcategory.id,
-            date: new Date(),
-          },
+    const { transaction } = await prisma.$transaction(async (tx) => {
+      let amount = data.type === "EXPENSE" ? -data.amount : data.amount;
+      if (prevTransaction.wallet.id === newWallet.id) {
+        const newBalance =
+          Number(prevTransaction.wallet.balance) -
+          Number(prevTransaction.amount) +
+          amount;
+
+        if (newBalance < 0) {
+          throw new Error("Insufficient funds");
+        }
+
+        await prisma.wallet.update({
+          where: { id: prevTransaction.wallet.id },
+          data: { balance: newBalance },
+        });
+      } else {
+        const prevWalletNewBalance =
+          Number(prevTransaction.wallet.balance) -
+          Number(prevTransaction.amount);
+        if (prevWalletNewBalance < 0) {
+          throw new Error("Insufficient funds");
+        }
+
+        const newWalletNewBalance = Number(newWallet.balance) + amount;
+        if (newWalletNewBalance < 0) {
+          throw new Error("Insufficient funds");
+        }
+
+        await prisma.wallet.update({
+          where: { id: prevTransaction.wallet.id },
+          data: { balance: prevWalletNewBalance },
+        });
+
+        await prisma.wallet.update({
+          where: { id: newWallet.id },
+          data: { balance: newWalletNewBalance },
         });
       }
 
-      const wallet = await prisma.wallet.update({
-        where: { id: prevWallet.id },
-        data: { ...data },
+      const transaction = await prisma.transaction.update({
+        where: { id: data.id },
+        data: { ...data, amount },
       });
 
-      return { wallet, transaction };
+      return { transaction };
     });
 
     return {
       status: true,
-      data: { wallet, transaction },
+      data: {
+        transaction: { ...transaction, amount: Number(transaction.amount) },
+      },
     };
   } catch (err: unknown) {
     return {
@@ -162,7 +181,7 @@ export async function deleteTransaction(data: DeleteTransactionInput) {
       throw new Error("Transaction not found");
     }
 
-    const { wallet, transaction } = await prisma.$transaction(async (tx) => {
+    const { transaction } = await prisma.$transaction(async (tx) => {
       const existentWallet = await prisma.wallet.findUnique({
         where: { id: existentTransaction.walletId },
       });
@@ -171,34 +190,28 @@ export async function deleteTransaction(data: DeleteTransactionInput) {
         throw new Error("Wallet not found");
       }
 
-      const amount = -existentTransaction.amount;
-      if (existentTransaction.type === "INCOME") {
-        if (
-          Number(existentWallet.balance) < Number(existentTransaction.amount)
-        ) {
-          throw new Error("Insufficient funds");
-        }
+      const amount = Number(existentTransaction.amount);
+      const previousBalance = Number(existentWallet.balance);
+      const newBalance = previousBalance - amount;
+      if (newBalance < 0) {
+        throw new Error("Insufficient funds");
       }
 
-      const previousBalance = Number(existentWallet.balance);
-      const newBalance = previousBalance + amount;
+      await prisma.wallet.update({
+        where: { id: existentTransaction.walletId },
+        data: { balance: newBalance },
+      });
 
       const transaction = await prisma.transaction.delete({
         where: { id: data.id },
       });
 
-      const wallet = await prisma.wallet.update({
-        where: { id: existentTransaction.walletId },
-        data: { balance: newBalance },
-      });
-
-      return { wallet, transaction };
+      return { transaction };
     });
 
     return {
       status: true,
       data: {
-        wallet: { ...wallet, balance: Number(wallet.balance) },
         transaction: { ...transaction, amount: Number(transaction.amount) },
       },
     };

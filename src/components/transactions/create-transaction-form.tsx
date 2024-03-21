@@ -70,7 +70,7 @@ interface AddWalletProps {
   categories: CustomCategory[];
 }
 
-export default function AddTransaction({
+export default function CreateTransactionForm({
   iconButton,
   wallets,
   categories,
@@ -100,12 +100,20 @@ export default function AddTransaction({
   const categoryId = form.watch("categoryId");
 
   React.useEffect(() => {
-    setAvailableCategories(
-      categories.filter((c) => c.type === transactionType)
+    const newAvailableCategories = categories.filter(
+      (c) => c.type === transactionType
     );
+    setAvailableCategories(newAvailableCategories);
+    const category = form.getValues("categoryId");
+    if (newAvailableCategories.find((n) => n.id === category)) {
+      return;
+    }
 
-    form.setValue("categoryId", "");
-    form.setValue("subcategoryId", "");
+    form.setValue("categoryId", newAvailableCategories[0]?.id || "");
+    form.setValue(
+      "subcategoryId",
+      newAvailableCategories[0]?.subcategories[0]?.id || ""
+    );
   }, [categories, transactionType, form]);
 
   React.useEffect(() => {
@@ -115,8 +123,12 @@ export default function AddTransaction({
     setAvailableSubcategories(
       currentCategory ? currentCategory.subcategories : []
     );
+    const subcategory = form.getValues("subcategoryId");
+    if (currentCategory?.subcategories.find((c) => c.id === subcategory)) {
+      return;
+    }
 
-    form.setValue("subcategoryId", "");
+    form.setValue("subcategoryId", currentCategory?.subcategories[0]?.id || "");
   }, [availableCategories, categoryId, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
