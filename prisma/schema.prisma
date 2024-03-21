@@ -135,9 +135,9 @@ enum HouseholdMemberType {
 model HouseholdMember {
   id                                String                              @id @default(uuid())
   householdId                       String
-  household                         Household                           @relation(fields: [householdId], references: [id])
+  household                         Household                           @relation(fields: [householdId], references: [id], onDelete: Cascade)
   userId                            String
-  user                              User                                @relation(fields: [userId], references: [id])
+  user                              User                                @relation(fields: [userId], references: [id], onDelete: Cascade)
   type                              HouseholdMemberType
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
@@ -148,9 +148,9 @@ model HouseholdMember {
 model HouseholdWallet {
   id                                String                              @id @default(uuid())
   householdId                       String
-  household                         Household                           @relation(fields: [householdId], references: [id])
+  household                         Household                           @relation(fields: [householdId], references: [id], onDelete: Cascade)
   walletId                          String
-  wallet                            Wallet                              @relation(fields: [walletId], references: [id])
+  wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 

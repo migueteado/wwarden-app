@@ -35,7 +35,7 @@ const menuItems = [
     icon: ArrowRightLeftIcon,
   },
   { title: "Transactions", href: "/dashboard/transactions", icon: ReceiptIcon },
-  { title: "Households", href: "/dashboard/households", icon: HomeIcon },
+  { title: "Households", href: "/households", icon: HomeIcon },
 ];
 
 export function Sidebar({
