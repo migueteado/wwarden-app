@@ -5,7 +5,7 @@ import { WalletList } from "@/components/wallets/wallet-list";
 import { getUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-export default async function DashboardWallets({
+export default async function Wallets({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
