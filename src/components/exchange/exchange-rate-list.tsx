@@ -127,16 +127,18 @@ export function DataTable<TData, TValue>({
 }
 
 interface ExchangeRateListProps {
-  exchangeRate: ExchangeRate;
+  exchangeRate: ExchangeRate | null;
 }
 
 export function ExchangeRateList({ exchangeRate }: ExchangeRateListProps) {
-  const rates = Object.entries(exchangeRate.data as Prisma.JsonObject).map(
-    ([currency, rate]) => ({
-      currency,
-      rate,
-    })
-  ) as { currency: string; rate: number }[];
+  const rates = exchangeRate
+    ? (Object.entries(exchangeRate.data as Prisma.JsonObject).map(
+        ([currency, rate]) => ({
+          currency,
+          rate,
+        })
+      ) as { currency: string; rate: number }[])
+    : [];
 
   return (
     <div className="flex flex-col w-full">
