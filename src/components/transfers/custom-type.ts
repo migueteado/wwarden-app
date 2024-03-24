@@ -4,12 +4,14 @@ import { CustomTransaction } from "../transactions/custom-type";
 export const transferSelect = Prisma.validator<Prisma.TransferSelect>()({
   id: true,
   fee: true,
+  feeUSD: true,
   transactions: {
     select: {
       id: true,
       entity: true,
       description: true,
       amount: true,
+      amountUSD: true,
       type: true,
       date: true,
       category: {
@@ -27,5 +29,5 @@ export type CustomTransfer = Omit<
   Prisma.TransferGetPayload<{
     select: typeof transferSelect;
   }>,
-  "fee" | "transactions"
-> & { fee: number; transactions: CustomTransaction[] };
+  "fee" | "feeUSD" | "transactions"
+> & { fee: number; feeUSD: number; transactions: CustomTransaction[] };

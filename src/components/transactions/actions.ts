@@ -58,7 +58,7 @@ export async function createTransaction(data: CreateTransactionInput) {
         data: {
           ...data,
           amount,
-          amountUsd: amount / rateToUSD,
+          amountUSD: amount / rateToUSD,
         },
       });
 
@@ -160,8 +160,8 @@ export async function updateTransaction(data: UpdateTransactionInput) {
         data: {
           ...data,
           amount,
-          amountUsd:
-            (amount * Number(prevTransaction.amountUsd)) /
+          amountUSD:
+            (amount * Number(prevTransaction.amountUSD)) /
             Number(prevTransaction.amount),
         },
       });

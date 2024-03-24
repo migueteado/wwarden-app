@@ -103,7 +103,7 @@ export async function updateWallet(data: UpdateWalletInput) {
             walletId: prevWallet.id,
             type: "ADJUSTMENT",
             amount: transactionAmount,
-            amountUsd: transactionAmount / rateToUSD,
+            amountUSD: transactionAmount / rateToUSD,
             categoryId: subcategory.categoryId,
             subcategoryId: subcategory.id,
             date: new Date(),

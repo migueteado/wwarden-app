@@ -16,6 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "../ui/button";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -56,27 +62,53 @@ export const columns: ColumnDef<
     cell: ({ row }) => {
       const transaction = row.original;
 
-      const formatted = new Intl.NumberFormat("en-US").format(
-        transaction.amount
-      );
+      const formatted = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+      }).format(transaction.amount);
+
+      const formattedUSD = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+      }).format(transaction.amountUSD);
 
       return (
-        <div className="text-right font-medium flex items-center justify-end text-md">
-          <div className="text-xs mr-2 text-slate-500">
-            {transaction.wallet.currency}
-          </div>{" "}
-          <div
-            className={
-              transaction.amount > 0
-                ? "text-green-500"
-                : transaction.amount < 0
-                ? "text-red-500"
-                : "text-slate-500"
-            }
-          >
-            {formatted}
-          </div>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-right font-medium flex items-center justify-end text-md">
+                <div className="text-xs mr-2 text-slate-500">
+                  {transaction.wallet.currency}
+                </div>{" "}
+                <div
+                  className={
+                    transaction.amount > 0
+                      ? "text-green-500"
+                      : transaction.amount < 0
+                      ? "text-red-500"
+                      : "text-slate-500"
+                  }
+                >
+                  {formatted}
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-right font-medium flex items-center justify-end text-md">
+                <div className="text-xs mr-2 text-slate-500">USD</div>{" "}
+                <div
+                  className={
+                    transaction.amountUSD > 0
+                      ? "text-green-500"
+                      : transaction.amountUSD < 0
+                      ? "text-red-500"
+                      : "text-slate-500"
+                  }
+                >
+                  {formattedUSD}
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },

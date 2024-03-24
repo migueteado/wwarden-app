@@ -47,7 +47,9 @@ export const columns: ColumnDef<CustomWallet>[] = [
     cell: ({ row }) => {
       const wallet = row.original;
 
-      const formatted = new Intl.NumberFormat("en-US").format(wallet.balance);
+      const formatted = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+      }).format(wallet.balance);
 
       return (
         <div className="text-right font-medium flex items-center justify-end text-md">

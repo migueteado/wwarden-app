@@ -5,6 +5,7 @@ export const transactionSelect = Prisma.validator<Prisma.TransactionSelect>()({
   entity: true,
   description: true,
   amount: true,
+  amountUSD: true,
   type: true,
   date: true,
   transferId: true,
@@ -21,8 +22,8 @@ export type CustomTransaction = Omit<
   Prisma.TransactionGetPayload<{
     select: typeof transactionSelect;
   }>,
-  "amount"
-> & { amount: number };
+  "amount" | "amountUSD"
+> & { amount: number; amountUSD: number };
 
 export const walletSelect = Prisma.validator<Prisma.WalletSelect>()({
   id: true,

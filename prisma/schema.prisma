@@ -91,7 +91,7 @@ model Transaction {
   subcategory                       Subcategory                         @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
   type                              TransactionType
   amount                            Decimal                             @db.Decimal(10, 2)
-  amountUsd                         Decimal                             @db.Decimal(10, 2)
+  amountUSD                         Decimal                             @db.Decimal(10, 2)
   entity                            String?
   description                       String?
   date                              DateTime

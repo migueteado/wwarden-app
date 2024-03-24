@@ -60,11 +60,14 @@ export async function createTransfer(data: CreateTransferInput) {
         throw new Error("Exchange rate not found");
       }
 
+      const fromAmountUSD = data.fromAmount / fromWalletRateToUSD;
+      const toAmountUSD = data.toAmount / toWalletRateToUSD;
+
       const [transfer, walletFrom, walletTo] = await Promise.all([
         prisma.transfer.create({
           data: {
             fee: data.fee ?? 0,
-            feeUSD: (data.fee ?? 0) / fromWalletRateToUSD,
+            feeUSD: fromAmountUSD - toAmountUSD,
           },
         }),
         prisma.wallet.update({
@@ -98,7 +101,7 @@ export async function createTransfer(data: CreateTransferInput) {
           data: {
             walletId: data.fromWalletId,
             amount: -data.fromAmount,
-            amountUsd: -data.fromAmount / fromWalletRateToUSD,
+            amountUSD: -fromAmountUSD,
             type: "EXPENSE",
             categoryId: expenseSubcategory.categoryId,
             subcategoryId: expenseSubcategory.id,
@@ -111,7 +114,7 @@ export async function createTransfer(data: CreateTransferInput) {
           data: {
             walletId: data.toWalletId,
             amount: data.toAmount,
-            amountUsd: data.toAmount / toWalletRateToUSD,
+            amountUSD: toAmountUSD,
             type: "INCOME",
             categoryId: incomeSubcategory.categoryId,
             subcategoryId: incomeSubcategory.id,

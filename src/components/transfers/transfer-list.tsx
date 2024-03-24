@@ -12,6 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   ColumnDef,
   flexRender,
@@ -51,26 +58,49 @@ export const columns: ColumnDef<
       );
 
       if (transaction) {
-        const formatted = new Intl.NumberFormat("en-US").format(
-          transaction.amount
-        );
+        const formatted = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transaction.amount);
+        const formattedUSD = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transaction.amountUSD);
         return (
           <div className="font-medium flex items-center justify-start text-md">
             <div className="mr-2">{transaction.wallet.name}</div>{" "}
-            <div className="text-xs mr-2 text-slate-500">
-              {transaction.wallet.currency}
-            </div>{" "}
-            <div
-              className={
-                transaction.amount > 0
-                  ? "text-green-500"
-                  : transaction.amount < 0
-                  ? "text-red-500"
-                  : "text-slate-500"
-              }
-            >
-              {formatted}
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-xs mr-2 text-slate-500">
+                    {transaction.wallet.currency}
+                  </div>{" "}
+                  <div
+                    className={
+                      transaction.amount > 0
+                        ? "text-green-500"
+                        : transaction.amount < 0
+                        ? "text-red-500"
+                        : "text-slate-500"
+                    }
+                  >
+                    {formatted}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs mr-2 text-slate-500">USD</div>{" "}
+                  <div
+                    className={
+                      transaction.amount > 0
+                        ? "text-green-500"
+                        : transaction.amount < 0
+                        ? "text-red-500"
+                        : "text-slate-500"
+                    }
+                  >
+                    {formattedUSD}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       } else {
@@ -88,26 +118,49 @@ export const columns: ColumnDef<
       );
 
       if (transaction) {
-        const formatted = new Intl.NumberFormat("en-US").format(
-          transaction.amount
-        );
+        const formatted = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transaction.amount);
+        const formattedUSD = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transaction.amountUSD);
         return (
           <div className="font-medium flex items-center justify-start text-md">
             <div className="mr-2">{transaction.wallet.name}</div>{" "}
-            <div className="text-xs mr-2 text-slate-500">
-              {transaction.wallet.currency}
-            </div>{" "}
-            <div
-              className={
-                transaction.amount > 0
-                  ? "text-green-500"
-                  : transaction.amount < 0
-                  ? "text-red-500"
-                  : "text-slate-500"
-              }
-            >
-              {formatted}
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-xs mr-2 text-slate-500">
+                    {transaction.wallet.currency}
+                  </div>{" "}
+                  <div
+                    className={
+                      transaction.amount > 0
+                        ? "text-green-500"
+                        : transaction.amount < 0
+                        ? "text-red-500"
+                        : "text-slate-500"
+                    }
+                  >
+                    {formatted}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs mr-2 text-slate-500">USD</div>{" "}
+                  <div
+                    className={
+                      transaction.amount > 0
+                        ? "text-green-500"
+                        : transaction.amount < 0
+                        ? "text-red-500"
+                        : "text-slate-500"
+                    }
+                  >
+                    {formattedUSD}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       } else {
@@ -125,14 +178,32 @@ export const columns: ColumnDef<
       );
 
       if (transaction) {
-        const formatted = new Intl.NumberFormat("en-US").format(transfer.fee);
+        const formatted = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transfer.fee);
+        const formattedUSD = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+        }).format(transfer.feeUSD);
+
         return (
-          <div className="font-medium flex items-center justify-start text-md">
-            <div className="text-xs mr-2 text-slate-500">
-              {transaction.wallet.currency}
-            </div>{" "}
-            <div>{formatted}</div>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="font-medium flex items-center justify-start text-md">
+                  <div className="text-xs mr-2 text-slate-500">
+                    {transaction.wallet.currency}
+                  </div>{" "}
+                  <div>{formatted}</div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="font-medium flex items-center justify-start text-md">
+                  <div className="text-xs mr-2 text-slate-500">USD</div>{" "}
+                  <div>{formattedUSD}</div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       } else {
         return <>N/A</>;

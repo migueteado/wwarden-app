@@ -36,9 +36,9 @@ export const columns: ColumnDef<{ currency: string; rate: number }>[] = [
     cell: ({ row }) => {
       const exchangeRate = row.original;
 
-      const formatted = new Intl.NumberFormat("en-US").format(
-        exchangeRate.rate
-      );
+      const formatted = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+      }).format(exchangeRate.rate);
       return (
         <div className="font-medium flex items-center justify-start text-md">
           {formatted}

@@ -44,9 +44,11 @@ export default async function Transfers({
   ).map((transfer) => ({
     ...transfer,
     fee: Number(transfer.fee),
+    feeUSD: Number(transfer.feeUSD),
     transactions: transfer.transactions.map((transaction) => ({
       ...transaction,
       amount: Number(transaction.amount),
+      amountUSD: Number(transaction.amountUSD),
     })),
   })) as CustomTransfer[];
   const pages = Math.ceil(transferCount / amountPerPage);

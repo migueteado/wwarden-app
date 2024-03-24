@@ -50,6 +50,7 @@ export default async function Transactions({
   ).map((transaction) => ({
     ...transaction,
     amount: Number(transaction.amount),
+    amountUSD: Number(transaction.amountUSD),
   }));
 
   const wallets = await prisma.wallet.findMany({
