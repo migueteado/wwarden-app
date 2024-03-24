@@ -6,6 +6,7 @@ import { CreateTransactionInput } from "./create-transaction-form";
 import { DeleteTransactionInput } from "./delete-transaction-form";
 import { UpdateTransactionInput } from "./update-transaction-form";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function createTransaction(data: CreateTransactionInput) {
   try {
@@ -21,15 +22,31 @@ export async function createTransaction(data: CreateTransactionInput) {
       throw new Error("Unauthorized");
     }
 
+    const existentWallet = await prisma.wallet.findUnique({
+      where: { id: data.walletId },
+    });
+
+    if (!existentWallet) {
+      throw new Error("Wallet not found");
+    }
+
+    const exchangeRate = await prisma.exchangeRate.findFirst({
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!exchangeRate || !exchangeRate.data) {
+      throw new Error("Exchange rate not found");
+    }
+
+    const rateToUSD: number = (exchangeRate.data as Prisma.JsonObject)[
+      existentWallet.currency
+    ] as number;
+
+    if (!rateToUSD) {
+      throw new Error("Exchange rate not found");
+    }
+
     const { transaction } = await prisma.$transaction(async (tx) => {
-      const existentWallet = await prisma.wallet.findUnique({
-        where: { id: data.walletId },
-      });
-
-      if (!existentWallet) {
-        throw new Error("Wallet not found");
-      }
-
       let amount = data.type === "EXPENSE" ? -data.amount : data.amount;
       const previousBalance = Number(existentWallet.balance);
       const newBalance = previousBalance + amount;
@@ -41,6 +58,7 @@ export async function createTransaction(data: CreateTransactionInput) {
         data: {
           ...data,
           amount,
+          amountUsd: amount / rateToUSD,
         },
       });
 
@@ -139,7 +157,13 @@ export async function updateTransaction(data: UpdateTransactionInput) {
 
       const transaction = await prisma.transaction.update({
         where: { id: data.id },
-        data: { ...data, amount },
+        data: {
+          ...data,
+          amount,
+          amountUsd:
+            (amount * Number(prevTransaction.amountUsd)) /
+            Number(prevTransaction.amount),
+        },
       });
 
       return { transaction };

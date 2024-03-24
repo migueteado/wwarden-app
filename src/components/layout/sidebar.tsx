@@ -10,6 +10,7 @@ import {
   HomeIcon,
   LayoutDashboardIcon,
   LogOut,
+  PercentIcon,
   ReceiptIcon,
   UserIcon,
   WalletIcon,
@@ -35,6 +36,7 @@ const menuItems = [
     icon: ArrowRightLeftIcon,
   },
   { title: "Transactions", href: "/dashboard/transactions", icon: ReceiptIcon },
+  { title: "Exchange Rates", href: "/exchange", icon: PercentIcon },
   { title: "Households", href: "/households", icon: HomeIcon },
 ];
 

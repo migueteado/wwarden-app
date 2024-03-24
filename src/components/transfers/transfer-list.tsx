@@ -1,13 +1,9 @@
 "use client";
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  SortingState,
-} from "@tanstack/react-table";
+import { usePathname, useRouter } from "next/navigation";
+import { CustomWallet } from "../transactions/custom-type";
+import { CustomTransfer } from "./custom-type";
+import { Button } from "../ui/button";
 import {
   Table,
   TableBody,
@@ -15,22 +11,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "../ui/button";
+} from "../ui/table";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { CustomCategory, CustomTransaction, CustomWallet } from "./custom-type";
-import TransactionActions from "./transaction-actions";
 
 export const columns: ColumnDef<
-  CustomTransaction & { wallets: CustomWallet[]; categories: CustomCategory[] }
+  CustomTransfer & { wallets: CustomWallet[] }
 >[] = [
   {
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => {
-      const transaction = row.original;
-      const date = new Date(transaction.date);
+      const transfer = row.original;
+      const date = new Date(transfer.transactions[0].date);
 
       const year = date.toLocaleString("default", { year: "numeric" });
       const month = date.toLocaleString("default", { month: "2-digit" });
@@ -42,92 +42,112 @@ export const columns: ColumnDef<
     },
   },
   {
-    accessorKey: "wallet",
-    header: "Wallet",
+    accessorKey: "transactions",
+    header: "Origin Transaction",
     cell: ({ row }) => {
-      const transaction = row.original;
-
-      return <>{transaction.wallet.name}</>;
-    },
-  },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: ({ row }) => {
-      const transaction = row.original;
-
-      const formatted = new Intl.NumberFormat("en-US").format(
-        transaction.amount
+      const transfer = row.original;
+      const transaction = transfer.transactions.find(
+        (t) => t.type === "EXPENSE"
       );
 
-      return (
-        <div className="text-right font-medium flex items-center justify-end text-md">
-          <div className="text-xs mr-2 text-slate-500">
-            {transaction.wallet.currency}
-          </div>{" "}
-          <div
-            className={
-              transaction.amount > 0
-                ? "text-green-500"
-                : transaction.amount < 0
-                ? "text-red-500"
-                : "text-slate-500"
-            }
-          >
-            {formatted}
+      if (transaction) {
+        const formatted = new Intl.NumberFormat("en-US").format(
+          transaction.amount
+        );
+        return (
+          <div className="font-medium flex items-center justify-start text-md">
+            <div className="mr-2">{transaction.wallet.name}</div>{" "}
+            <div className="text-xs mr-2 text-slate-500">
+              {transaction.wallet.currency}
+            </div>{" "}
+            <div
+              className={
+                transaction.amount > 0
+                  ? "text-green-500"
+                  : transaction.amount < 0
+                  ? "text-red-500"
+                  : "text-slate-500"
+              }
+            >
+              {formatted}
+            </div>
           </div>
-        </div>
+        );
+      } else {
+        return <>N/A</>;
+      }
+    },
+  },
+  {
+    accessorKey: "transactions",
+    header: "Destination Transaction",
+    cell: ({ row }) => {
+      const transfer = row.original;
+      const transaction = transfer.transactions.find(
+        (t) => t.type === "INCOME"
       );
+
+      if (transaction) {
+        const formatted = new Intl.NumberFormat("en-US").format(
+          transaction.amount
+        );
+        return (
+          <div className="font-medium flex items-center justify-start text-md">
+            <div className="mr-2">{transaction.wallet.name}</div>{" "}
+            <div className="text-xs mr-2 text-slate-500">
+              {transaction.wallet.currency}
+            </div>{" "}
+            <div
+              className={
+                transaction.amount > 0
+                  ? "text-green-500"
+                  : transaction.amount < 0
+                  ? "text-red-500"
+                  : "text-slate-500"
+              }
+            >
+              {formatted}
+            </div>
+          </div>
+        );
+      } else {
+        return <>N/A</>;
+      }
     },
   },
   {
-    accessorKey: "entity",
-    header: "Entity",
+    accessorKey: "fee",
+    header: "Fee",
     cell: ({ row }) => {
-      const transaction = row.original;
-      const entity = transaction.entity ? transaction.entity : "-";
-      const formatted =
-        entity?.length > 20 ? entity?.slice(0, 20) + "..." : entity;
+      const transfer = row.original;
+      const transaction = transfer.transactions.find(
+        (t) => t.type === "EXPENSE"
+      );
 
-      return <>{formatted}</>;
-    },
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-    cell: ({ row }) => {
-      const transaction = row.original;
-
-      const formatted =
-        transaction.category.name.length > 20
-          ? transaction.category.name.slice(0, 20) + "..."
-          : transaction.category.name;
-
-      return <>{formatted}</>;
-    },
-  },
-  {
-    accessorKey: "subcategory",
-    header: "Subcategory",
-    cell: ({ row }) => {
-      const transaction = row.original;
-
-      const formatted =
-        transaction.subcategory.name.length > 20
-          ? transaction.subcategory.name.slice(0, 20) + "..."
-          : transaction.subcategory.name;
-
-      return <>{formatted}</>;
+      if (transaction) {
+        const formatted = new Intl.NumberFormat("en-US").format(transfer.fee);
+        return (
+          <div className="font-medium flex items-center justify-start text-md">
+            <div className="text-xs mr-2 text-slate-500">
+              {transaction.wallet.currency}
+            </div>{" "}
+            <div>{formatted}</div>
+          </div>
+        );
+      } else {
+        return <>N/A</>;
+      }
     },
   },
   {
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => {
-      const transaction = row.original;
-      const description = transaction.description
-        ? transaction.description
-        : "-";
+      const transfer = row.original;
+      if (transfer.transactions.length === 0) return <></>;
+
+      const description = transfer.transactions[0].description;
+      if (!description) return <></>;
       const formatted =
         description?.length > 20
           ? description?.slice(0, 20) + "..."
@@ -140,20 +160,15 @@ export const columns: ColumnDef<
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const transaction = row.original;
+      const transfer = row.original;
 
       return (
         <div className="flex items-center justify-end">
-          {!transaction.transferId && (
-            <TransactionActions
-              transaction={{
-                ...transaction,
-                amount: Number(transaction.amount),
-              }}
-              categories={row.original.categories}
-              wallets={row.original.wallets}
-            />
-          )}
+          {/* <TransactionActions
+            transaction={{ ...transaction, amount: Number(transaction.amount) }}
+            categories={row.original.categories}
+            wallets={row.original.wallets}
+          /> */}
         </div>
       );
     },
@@ -238,21 +253,19 @@ export function DataTable<TData, TValue>({
   );
 }
 
-interface TransactionListProps {
-  transactions: CustomTransaction[];
+interface TramsferListProps {
+  transfers: CustomTransfer[];
   wallets: CustomWallet[];
-  categories: CustomCategory[];
   page: number;
   pages: number;
 }
 
-export function TransactionList({
-  transactions,
+export function TransferList({
+  transfers,
   wallets,
-  categories,
   page,
   pages,
-}: TransactionListProps) {
+}: TramsferListProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -268,10 +281,9 @@ export function TransactionList({
     <div className="flex flex-col w-full">
       <DataTable
         columns={columns}
-        data={transactions.map((t) => ({
+        data={transfers.map((t) => ({
           ...t,
           wallets: wallets,
-          categories: categories,
         }))}
       />
       <div className="flex items-center justify-end space-x-2 py-4">

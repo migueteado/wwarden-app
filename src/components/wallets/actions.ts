@@ -6,6 +6,7 @@ import { verifyJWT } from "@/lib/jwt";
 import { DeleteWalletInput } from "../wallets/wallet-actions";
 import { UpdateWalletInput } from "../wallets/wallet-actions";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function createWallet(data: CreateWalletInput) {
   try {
@@ -30,28 +31,13 @@ export async function createWallet(data: CreateWalletInput) {
       throw new Error("Subcategory not found");
     }
 
-    const { wallet, transaction } = await prisma.$transaction(async (tx) => {
-      const wallet = await prisma.wallet.create({
-        data: { userId: user.id, ...rest },
-      });
-
-      const transaction = await prisma.transaction.create({
-        data: {
-          walletId: wallet.id,
-          type: "ADJUSTMENT",
-          amount: data.balance,
-          categoryId: subcategory.categoryId,
-          subcategoryId: subcategory.id,
-          date: data.date,
-        },
-      });
-
-      return { wallet, transaction };
+    const wallet = await prisma.wallet.create({
+      data: { userId: user.id, ...rest },
     });
 
     return {
       status: true,
-      data: { wallet, transaction },
+      data: { wallet },
     };
   } catch (err: unknown) {
     return {
@@ -91,15 +77,33 @@ export async function updateWallet(data: UpdateWalletInput) {
       throw new Error("Wallet not found");
     }
 
+    const exchangeRate = await prisma.exchangeRate.findFirst({
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!exchangeRate || !exchangeRate.data) {
+      throw new Error("Exchange rate not found");
+    }
+
+    const rateToUSD: number = (exchangeRate.data as Prisma.JsonObject)[
+      prevWallet.currency
+    ] as number;
+
+    if (!rateToUSD) {
+      throw new Error("Exchange rate not found");
+    }
+
     const { wallet, transaction } = await prisma.$transaction(async (tx) => {
       let transaction = null;
       const prevWalletBalance = Number(prevWallet.balance);
       if (prevWalletBalance !== data.balance) {
+        const transactionAmount = data.balance - prevWalletBalance;
         transaction = await prisma.transaction.create({
           data: {
             walletId: prevWallet.id,
             type: "ADJUSTMENT",
-            amount: data.balance - prevWalletBalance,
+            amount: transactionAmount,
+            amountUsd: transactionAmount / rateToUSD,
             categoryId: subcategory.categoryId,
             subcategoryId: subcategory.id,
             date: new Date(),

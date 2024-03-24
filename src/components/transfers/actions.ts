@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { CreateTransferInput } from "./create-transfer-form";
 import { verifyJWT } from "@/lib/jwt";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function createTransfer(data: CreateTransferInput) {
   try {
@@ -39,10 +40,31 @@ export async function createTransfer(data: CreateTransferInput) {
         throw new Error("Insufficient funds");
       }
 
+      const exchangeRate = await prisma.exchangeRate.findFirst({
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (!exchangeRate || !exchangeRate.data) {
+        throw new Error("Exchange rate not found");
+      }
+
+      const fromWalletRateToUSD: number = (
+        exchangeRate.data as Prisma.JsonObject
+      )[fromWallet.currency] as number;
+
+      const toWalletRateToUSD: number = (
+        exchangeRate.data as Prisma.JsonObject
+      )[toWallet.currency] as number;
+
+      if (!fromWalletRateToUSD || !toWalletRateToUSD) {
+        throw new Error("Exchange rate not found");
+      }
+
       const [transfer, walletFrom, walletTo] = await Promise.all([
         prisma.transfer.create({
           data: {
             fee: data.fee ?? 0,
+            feeUSD: (data.fee ?? 0) / fromWalletRateToUSD,
           },
         }),
         prisma.wallet.update({
@@ -76,6 +98,7 @@ export async function createTransfer(data: CreateTransferInput) {
           data: {
             walletId: data.fromWalletId,
             amount: -data.fromAmount,
+            amountUsd: -data.fromAmount / fromWalletRateToUSD,
             type: "EXPENSE",
             categoryId: expenseSubcategory.categoryId,
             subcategoryId: expenseSubcategory.id,
@@ -88,6 +111,7 @@ export async function createTransfer(data: CreateTransferInput) {
           data: {
             walletId: data.toWalletId,
             amount: data.toAmount,
+            amountUsd: data.toAmount / toWalletRateToUSD,
             type: "INCOME",
             categoryId: incomeSubcategory.categoryId,
             subcategoryId: incomeSubcategory.id,

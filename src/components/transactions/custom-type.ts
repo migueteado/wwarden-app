@@ -7,6 +7,7 @@ export const transactionSelect = Prisma.validator<Prisma.TransactionSelect>()({
   amount: true,
   type: true,
   date: true,
+  transferId: true,
   category: {
     select: { id: true, name: true },
   },
