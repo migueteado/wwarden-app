@@ -1,11 +1,10 @@
-import AddWallet from "@/components/wallets/add-wallet";
+import CreateWalletForm from "@/components/wallets/create-wallet-form";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { WalletList } from "@/components/wallets/wallet-list";
 import { getViews } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import CreateHouseholdWalletForm from "@/components/wallets/create-household-wallet-form";
 import { cookies } from "next/headers";
 import { CustomWallet, walletSelect } from "@/components/wallets/custom-types";
 export default async function Wallets({
@@ -34,10 +33,7 @@ export default async function Wallets({
 
   if (viewType === "household") {
     const householdId = viewId;
-    const [users, walletCount, walletsResult] = await Promise.all([
-      prisma.user.findMany({
-        where: { households: { some: { household: { id: householdId } } } },
-      }),
+    const [walletCount, walletsResult] = await Promise.all([
       prisma.wallet.count({
         where: { householdWallets: { some: { householdId } } },
       }),
@@ -58,6 +54,7 @@ export default async function Wallets({
         ...wallet,
         balance: Number(wallet.balance),
         balanceUSD: Number(wallet.balance) / rateToUSD,
+        isOwner: wallet.user.id === user.id,
       };
     });
 
@@ -66,7 +63,7 @@ export default async function Wallets({
     return (
       <DashboardLayout title="Wallets" views={views}>
         <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
-          <CreateHouseholdWalletForm householdId={householdId} users={users} />
+          <CreateWalletForm />
         </div>
         <div className="py-2 flex justify-center items-center">
           <WalletList wallets={wallets} page={page} pages={pages} />
@@ -95,6 +92,7 @@ export default async function Wallets({
       ...wallet,
       balance: Number(wallet.balance),
       balanceUSD: Number(wallet.balance) / rateToUSD,
+      isOwner: wallet.user.id === user.id,
     };
   });
 
@@ -103,7 +101,7 @@ export default async function Wallets({
   return (
     <DashboardLayout title="Wallets" views={views}>
       <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
-        <AddWallet />
+        <CreateWalletForm />
       </div>
       <div className="py-2 flex justify-center items-center">
         <WalletList wallets={wallets} page={page} pages={pages} />

@@ -181,6 +181,7 @@ export default function CreateTransferForm({
                           {wallets.map((w) => (
                             <SelectItem key={w.id} value={w.id}>
                               <div className="flex items-center">
+                                <div className="mr-2">{w.user.username}</div>
                                 <div className="mr-2">{w.name} </div>
                                 <div className="text-xs text-slate-500">
                                   {w.currency}
@@ -235,6 +236,7 @@ export default function CreateTransferForm({
                           {wallets.map((w) => (
                             <SelectItem key={w.id} value={w.id}>
                               <div className="flex items-center">
+                                <div className="mr-2">{w.user.username}</div>
                                 <div className="mr-2">{w.name} </div>
                                 <div className="text-xs text-slate-500">
                                   {w.currency}

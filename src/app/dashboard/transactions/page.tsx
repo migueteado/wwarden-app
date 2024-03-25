@@ -10,6 +10,7 @@ import {
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { getViews } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function Transactions({
@@ -19,6 +20,8 @@ export default async function Transactions({
 }) {
   const views = await getViews();
   const user = views.find((view) => view.type === "user");
+  const viewType = cookies().get("view_type")?.value ?? (user?.type as string);
+  const viewId = cookies().get("view_id")?.value ?? (user?.id as string);
   const amountPerPage = 50;
   const page = searchParams.page ? Number(searchParams.page) : 1;
   const skip = (page - 1) * amountPerPage;

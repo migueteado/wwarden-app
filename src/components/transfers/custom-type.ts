@@ -20,7 +20,14 @@ export const transferSelect = Prisma.validator<Prisma.TransferSelect>()({
       subcategory: {
         select: { id: true, name: true },
       },
-      wallet: { select: { id: true, currency: true, name: true } },
+      wallet: {
+        select: {
+          id: true,
+          currency: true,
+          name: true,
+          user: { select: { id: true, username: true } },
+        },
+      },
     },
   },
 });

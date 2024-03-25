@@ -19,4 +19,4 @@ export type CustomWallet = Omit<
     select: typeof walletSelect;
   }>,
   "balance"
-> & { balance: number; balanceUSD: number };
+> & { balance: number; balanceUSD: number; isOwner: boolean };

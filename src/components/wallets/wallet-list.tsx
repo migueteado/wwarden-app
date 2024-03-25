@@ -30,6 +30,7 @@ import {
 import { CustomWallet } from "./custom-types";
 import Cookies from "js-cookie";
 import { Avatar } from "../avatar";
+import { View } from "@/lib/auth";
 
 const columns: ColumnDef<CustomWallet>[] = [
   {
@@ -101,6 +102,9 @@ const columns: ColumnDef<CustomWallet>[] = [
     cell: ({ row }) => {
       const wallet = row.original;
 
+      if (!wallet.isOwner) {
+        return null;
+      }
       return (
         <div className="flex items-center justify-end">
           <WalletActions

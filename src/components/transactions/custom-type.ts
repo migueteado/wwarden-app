@@ -15,7 +15,14 @@ export const transactionSelect = Prisma.validator<Prisma.TransactionSelect>()({
   subcategory: {
     select: { id: true, name: true },
   },
-  wallet: { select: { id: true, currency: true, name: true } },
+  wallet: {
+    select: {
+      id: true,
+      currency: true,
+      name: true,
+      user: { select: { id: true, username: true } },
+    },
+  },
 });
 
 export type CustomTransaction = Omit<
@@ -29,6 +36,12 @@ export const walletSelect = Prisma.validator<Prisma.WalletSelect>()({
   id: true,
   currency: true,
   name: true,
+  user: {
+    select: {
+      id: true,
+      username: true,
+    },
+  },
 });
 
 export type CustomWallet = Prisma.WalletGetPayload<{

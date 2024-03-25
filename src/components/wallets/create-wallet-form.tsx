@@ -61,11 +61,13 @@ export type CreateWalletInput = z.infer<typeof CreateWalletSchema>;
 
 const formSchema = CreateWalletSchema;
 
-interface AddWalletProps {
+interface CreateWalletFormProps {
   iconButton?: boolean;
 }
 
-export default function AddWallet({ iconButton }: AddWalletProps) {
+export default function CreateWalletForm({
+  iconButton,
+}: CreateWalletFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
