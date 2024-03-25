@@ -38,6 +38,7 @@ export const columns: ColumnDef<{ currency: string; rate: number }>[] = [
 
       const formatted = new Intl.NumberFormat("en-US", {
         minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(exchangeRate.rate);
       return (
         <div className="font-medium flex items-center justify-start text-md">

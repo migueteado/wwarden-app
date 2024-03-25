@@ -64,10 +64,12 @@ export const columns: ColumnDef<
 
       const formatted = new Intl.NumberFormat("en-US", {
         minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(transaction.amount);
 
       const formattedUSD = new Intl.NumberFormat("en-US", {
         minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(transaction.amountUSD);
 
       return (

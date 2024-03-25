@@ -18,7 +18,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { ArrowUpDown } from "lucide-react";
 import React from "react";
 import WalletActions from "./wallet-actions";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,16 +27,36 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { CustomWallet } from "./custom-types";
+import Cookies from "js-cookie";
+import { Avatar } from "../avatar";
 
-export type CustomWallet = Omit<Wallet, "balance"> & {
-  balance: number;
-  balanceUSD: number;
-};
-
-export const columns: ColumnDef<CustomWallet>[] = [
+const columns: ColumnDef<CustomWallet>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => {
+      const wallet = row.original;
+
+      if (Cookies.get("view_type") === "household") {
+        return (
+          <div className="flex items-center justify-start">
+            <div className="flex items-center mr-2">
+              <div className="mr-2">
+                <Avatar username={wallet.user.username} />
+              </div>
+
+              <div>{wallet.user.username}</div>
+            </div>
+            <div>{wallet.name}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex items-center justify-start">{wallet.name}</div>
+      );
+    },
   },
   {
     accessorKey: "balance",

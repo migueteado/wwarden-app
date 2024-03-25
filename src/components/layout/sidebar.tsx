@@ -26,7 +26,8 @@ import {
 import { useToast } from "../ui/use-toast";
 import { signoutUser } from "../auth/actions";
 import { View } from "@/lib/auth";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: LayoutDashboardIcon },
@@ -43,29 +44,19 @@ const menuItems = [
 
 export function Sidebar({ views, isOpen }: { views: View[]; isOpen: boolean }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const viewType = searchParams.get("view_type") ?? views[0].type;
-  const viewId = searchParams.get("view_id") ?? views[0].id;
+  const user = views.find((view) => view.type === "user") as View;
+  const viewType = Cookies.get("view_type") ?? user.type;
+  const viewId = Cookies.get("view_id") ?? user.id;
   const view = views.find(
     (view) => view.id === viewId && view.type === viewType
   ) as View;
   const { toast } = useToast();
 
   const handleViewChange = (view: View) => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    Cookies.set("view_type", view.type);
+    Cookies.set("view_id", view.id);
 
-    if (!view) {
-      current.delete("view_type");
-      current.delete("view_id");
-    } else {
-      current.set("view_type", view.type);
-      current.set("view_id", view.id);
-    }
-
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.push(`${pathname}${query}`);
+    router.refresh();
   };
 
   const handleSignOut = async () => {

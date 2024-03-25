@@ -1,11 +1,13 @@
 import AddWallet from "@/components/wallets/add-wallet";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { CustomWallet, WalletList } from "@/components/wallets/wallet-list";
+import { WalletList } from "@/components/wallets/wallet-list";
 import { getViews } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { Prisma, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import CreateHouseholdWalletForm from "@/components/wallets/create-household-wallet-form";
+import { cookies } from "next/headers";
+import { CustomWallet, walletSelect } from "@/components/wallets/custom-types";
 export default async function Wallets({
   searchParams,
 }: {
@@ -13,6 +15,8 @@ export default async function Wallets({
 }) {
   const views = await getViews();
   const user = views.find((view) => view.type === "user");
+  const viewType = cookies().get("view_type")?.value ?? (user?.type as string);
+  const viewId = cookies().get("view_id")?.value ?? (user?.id as string);
   const amountPerPage = 20;
   const page = searchParams.page ? Number(searchParams.page) : 1;
   const skip = (page - 1) * amountPerPage;
@@ -28,12 +32,9 @@ export default async function Wallets({
     })
   )?.data as Prisma.JsonObject;
 
-  let walletCount = 0;
-  let wallets: CustomWallet[] = [];
-  let users: User[] = [];
-  if (searchParams.view_type === "household") {
-    const householdId = searchParams.view_id;
-    const [userResult, countResult, walletsResult] = await Promise.all([
+  if (viewType === "household") {
+    const householdId = viewId;
+    const [users, walletCount, walletsResult] = await Promise.all([
       prisma.user.findMany({
         where: { households: { some: { household: { id: householdId } } } },
       }),
@@ -42,6 +43,7 @@ export default async function Wallets({
       }),
       prisma.wallet.findMany({
         where: { householdWallets: { some: { householdId } } },
+        select: walletSelect,
         skip,
         take,
         orderBy: {
@@ -49,9 +51,8 @@ export default async function Wallets({
         },
       }),
     ]);
-    users = userResult;
-    walletCount = countResult;
-    wallets = walletsResult.map((wallet) => {
+
+    const wallets: CustomWallet[] = walletsResult.map((wallet) => {
       const rateToUSD = (exchangeRate[wallet.currency] as number) || 1;
       return {
         ...wallet,
@@ -59,44 +60,50 @@ export default async function Wallets({
         balanceUSD: Number(wallet.balance) / rateToUSD,
       };
     });
-  } else {
-    const [countResult, walletsResult] = await Promise.all([
-      prisma.wallet.count({
-        where: { userId: user.id },
-      }),
-      prisma.wallet.findMany({
-        where: { userId: user.id },
-        skip,
-        take,
-        orderBy: {
-          balance: "desc",
-        },
-      }),
-    ]);
-    walletCount = countResult;
-    wallets = walletsResult.map((wallet) => {
-      const rateToUSD = (exchangeRate[wallet.currency] as number) || 1;
-      return {
-        ...wallet,
-        balance: Number(wallet.balance),
-        balanceUSD: Number(wallet.balance) / rateToUSD,
-      };
-    });
+
+    const pages = Math.ceil(walletCount / amountPerPage);
+
+    return (
+      <DashboardLayout title="Wallets" views={views}>
+        <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
+          <CreateHouseholdWalletForm householdId={householdId} users={users} />
+        </div>
+        <div className="py-2 flex justify-center items-center">
+          <WalletList wallets={wallets} page={page} pages={pages} />
+        </div>
+      </DashboardLayout>
+    );
   }
+
+  const [walletCount, walletsResult] = await Promise.all([
+    prisma.wallet.count({
+      where: { userId: user.id },
+    }),
+    prisma.wallet.findMany({
+      where: { userId: user.id },
+      select: walletSelect,
+      skip,
+      take,
+      orderBy: {
+        balance: "desc",
+      },
+    }),
+  ]);
+  const wallets: CustomWallet[] = walletsResult.map((wallet) => {
+    const rateToUSD = (exchangeRate[wallet.currency] as number) || 1;
+    return {
+      ...wallet,
+      balance: Number(wallet.balance),
+      balanceUSD: Number(wallet.balance) / rateToUSD,
+    };
+  });
 
   const pages = Math.ceil(walletCount / amountPerPage);
 
   return (
     <DashboardLayout title="Wallets" views={views}>
       <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
-        {users.length > 0 && searchParams.view_id ? (
-          <CreateHouseholdWalletForm
-            householdId={searchParams.view_id}
-            users={users}
-          />
-        ) : (
-          <AddWallet />
-        )}
+        <AddWallet />
       </div>
       <div className="py-2 flex justify-center items-center">
         <WalletList wallets={wallets} page={page} pages={pages} />

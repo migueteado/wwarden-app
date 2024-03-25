@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { deleteWallet, updateWallet } from "./actions";
+import { CustomWallet } from "./custom-types";
 
 export const UpdateWalletSchema = z.object({
   id: z.string(),
@@ -67,7 +68,7 @@ export type UpdateWalletInput = z.infer<typeof UpdateWalletSchema>;
 const formSchema = UpdateWalletSchema;
 
 interface UpdateWalletProps {
-  wallet: Omit<Wallet, "balance"> & { balance: number };
+  wallet: CustomWallet;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
   setIsOpen: (isOpen: boolean) => void;
@@ -227,7 +228,7 @@ export const DeleteWalletSchema = z.object({
 
 export type DeleteWalletInput = z.infer<typeof DeleteWalletSchema>;
 interface DeleteWalletProps {
-  wallet: Omit<Wallet, "balance"> & { balance: number };
+  wallet: CustomWallet;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
   setIsOpen: (isOpen: boolean) => void;
@@ -280,7 +281,7 @@ function DeleteWallet({
 }
 
 interface WalletActionsProps {
-  wallet: Omit<Wallet, "balance"> & { balance: number };
+  wallet: CustomWallet;
 }
 
 export default function WalletActions({ wallet }: WalletActionsProps) {

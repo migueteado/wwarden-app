@@ -60,9 +60,11 @@ export const columns: ColumnDef<
       if (transaction) {
         const formatted = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transaction.amount);
         const formattedUSD = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transaction.amountUSD);
 
         return (
@@ -123,9 +125,11 @@ export const columns: ColumnDef<
       if (transaction) {
         const formatted = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transaction.amount);
         const formattedUSD = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transaction.amountUSD);
         return (
           <div className="font-medium flex items-center justify-start text-md">
@@ -187,9 +191,11 @@ export const columns: ColumnDef<
       if (transaction) {
         const formatted = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transfer.fee);
         const formattedUSD = new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(transfer.feeUSD);
 
         return (
