@@ -24,8 +24,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useToast } from "../ui/use-toast";
-import { JWTPayload } from "@/lib/jwt";
 import { signoutUser } from "../auth/actions";
+import { View } from "@/lib/auth";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: LayoutDashboardIcon },
@@ -40,14 +41,32 @@ const menuItems = [
   { title: "Households", href: "/households", icon: HomeIcon },
 ];
 
-export function Sidebar({
-  user,
-  isOpen,
-}: {
-  user: JWTPayload;
-  isOpen: boolean;
-}) {
+export function Sidebar({ views, isOpen }: { views: View[]; isOpen: boolean }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const viewType = searchParams.get("view_type") ?? views[0].type;
+  const viewId = searchParams.get("view_id") ?? views[0].id;
+  const view = views.find(
+    (view) => view.id === viewId && view.type === viewType
+  ) as View;
   const { toast } = useToast();
+
+  const handleViewChange = (view: View) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+    if (!view) {
+      current.delete("view_type");
+      current.delete("view_id");
+    } else {
+      current.set("view_type", view.type);
+      current.set("view_id", view.id);
+    }
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`${pathname}${query}`);
+  };
 
   const handleSignOut = async () => {
     console.log("signing out");
@@ -77,15 +96,32 @@ export function Sidebar({
                 className="w-full flex items-center justify-start"
               >
                 <div className="mr-2">
-                  <Avatar username={user.username} />
+                  <Avatar username={view.name} />
                 </div>
 
-                <div>{user.username}</div>
+                <div>{view.name}</div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[283px]">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Views</DropdownMenuLabel>
+              {views.map((view) => (
+                <DropdownMenuItem
+                  onClick={() => handleViewChange(view)}
+                  key={view.id}
+                >
+                  <div className="flex items-center w-full">
+                    {view.type === "user" ? (
+                      <UserIcon className="h-4 w-4 mr-2" />
+                    ) : (
+                      <HomeIcon className="h-4 w-4 mr-2" />
+                    )}{" "}
+                    {view.name}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+
               <DropdownMenuSeparator />
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuItem>
                 <Link href="/dashboard/profile" className="flex w-full">
                   <UserIcon className="w-4 h-4 mr-2" /> Profile

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Wallet } from "@prisma/client";
 
 export const householdSelect = Prisma.validator<Prisma.HouseholdSelect>()({
   id: true,
@@ -34,3 +34,7 @@ export const householdSelect = Prisma.validator<Prisma.HouseholdSelect>()({
 export type CustomHousehold = Prisma.HouseholdGetPayload<{
   select: typeof householdSelect;
 }>;
+
+export type CustomWallet = Omit<Wallet, "balance"> & {
+  balance: number;
+};

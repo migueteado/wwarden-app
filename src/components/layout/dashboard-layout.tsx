@@ -4,15 +4,15 @@ import { useState } from "react";
 import Backdrop from "./backdrop";
 import Header from "./header";
 import { Sidebar } from "./sidebar";
-import { JWTPayload } from "@/lib/jwt";
+import { View } from "@/lib/auth";
 
 export function DashboardLayout({
   title,
-  user,
+  views,
   children,
 }: {
   title: string;
-  user: JWTPayload;
+  views: View[];
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +29,7 @@ export function DashboardLayout({
       </div>
       <Header toggleSidebar={toggleSidebar} title={title} />
       <Backdrop toggle={toggleSidebar} isOpen={isOpen} />
-      <Sidebar user={user} isOpen={isOpen} />
+      <Sidebar views={views} isOpen={isOpen} />
     </>
   );
 }

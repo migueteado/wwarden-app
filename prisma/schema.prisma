@@ -106,6 +106,7 @@ model Transfer {
   transactions                      Transaction[]         
   fee                               Decimal                             @db.Decimal(10, 2)
   feeUSD                            Decimal                             @db.Decimal(10, 2)
+  date                              DateTime
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }

@@ -9,7 +9,7 @@ import {
   TableCell,
   TableRow,
 } from "../ui/table";
-import { CustomHousehold } from "./custom-types";
+import { CustomHousehold, CustomWallet } from "./custom-types";
 import React from "react";
 import {
   Dialog,
@@ -35,7 +35,6 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { addMember, addWallet } from "./actions";
-import { CustomWallet } from "../wallets/wallet-list";
 import {
   Select,
   SelectContent,

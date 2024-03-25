@@ -6,7 +6,7 @@ import {
   transferSelect,
 } from "@/components/transfers/custom-type";
 import { TransferList } from "@/components/transfers/transfer-list";
-import { getUser } from "@/lib/auth";
+import { getViews } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -15,7 +15,8 @@ export default async function Transfers({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) {
-  const user = await getUser();
+  const views = await getViews();
+  const user = views.find((view) => view.type === "user");
   const amountPerPage = 50;
   const page = searchParams.page ? Number(searchParams.page) : 1;
   const skip = (page - 1) * amountPerPage;
@@ -26,7 +27,7 @@ export default async function Transfers({
   }
 
   const wallets = await prisma.wallet.findMany({
-    where: { userId: user.sub },
+    where: { userId: user.id },
     select: walletSelect,
   });
 
@@ -40,6 +41,9 @@ export default async function Transfers({
     await prisma.transfer.findMany({
       where: { transactions: { some: { walletId: { in: walletIds } } } },
       select: transferSelect,
+      orderBy: { date: "desc" },
+      skip,
+      take,
     })
   ).map((transfer) => ({
     ...transfer,
@@ -51,10 +55,11 @@ export default async function Transfers({
       amountUSD: Number(transaction.amountUSD),
     })),
   })) as CustomTransfer[];
+
   const pages = Math.ceil(transferCount / amountPerPage);
 
   return (
-    <DashboardLayout title="Transfers" user={user}>
+    <DashboardLayout title="Transfers" views={views}>
       <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
         <CreateTransferForm wallets={wallets} />
       </div>

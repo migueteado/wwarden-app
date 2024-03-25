@@ -22,8 +22,17 @@ import { ArrowUpDown } from "lucide-react";
 import React from "react";
 import WalletActions from "./wallet-actions";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
-export type CustomWallet = Omit<Wallet, "balance"> & { balance: number };
+export type CustomWallet = Omit<Wallet, "balance"> & {
+  balance: number;
+  balanceUSD: number;
+};
 
 export const columns: ColumnDef<CustomWallet>[] = [
   {
@@ -32,30 +41,38 @@ export const columns: ColumnDef<CustomWallet>[] = [
   },
   {
     accessorKey: "balance",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="w-full"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Balance
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Balance",
     cell: ({ row }) => {
       const wallet = row.original;
 
       const formatted = new Intl.NumberFormat("en-US", {
         minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(wallet.balance);
+      const formattedUSD = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(wallet.balanceUSD);
 
       return (
-        <div className="text-right font-medium flex items-center justify-end text-md">
-          <div className="text-xs mr-2 text-slate-500">{wallet.currency}</div>{" "}
-          {formatted}
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-right font-medium flex items-center justify-end text-md">
+                <div className="text-xs mr-2 text-slate-500">
+                  {wallet.currency}
+                </div>{" "}
+                {formatted}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-right font-medium flex items-center justify-end text-md">
+                <div className="text-xs mr-2 text-slate-500">USD</div>{" "}
+                {formattedUSD}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },
@@ -176,7 +193,7 @@ export function WalletList({ wallets, page, pages }: WalletListProps) {
     <div className="flex flex-col w-full">
       <DataTable
         columns={columns}
-        data={wallets.sort((a, b) => b.balance - a.balance)}
+        data={wallets.sort((a, b) => b.balanceUSD - a.balanceUSD)}
       />
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button

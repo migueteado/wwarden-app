@@ -8,7 +8,7 @@ import {
   walletSelect,
 } from "@/components/transactions/custom-type";
 import { TransactionList } from "@/components/transactions/transaction-list";
-import { getUser } from "@/lib/auth";
+import { getViews } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -17,7 +17,8 @@ export default async function Transactions({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) {
-  const user = await getUser();
+  const views = await getViews();
+  const user = views.find((view) => view.type === "user");
   const amountPerPage = 50;
   const page = searchParams.page ? Number(searchParams.page) : 1;
   const skip = (page - 1) * amountPerPage;
@@ -29,7 +30,7 @@ export default async function Transactions({
 
   const walletIds = (
     await prisma.wallet.findMany({
-      where: { userId: user.sub },
+      where: { userId: user.id },
       select: { id: true },
     })
   ).map((wallet) => wallet.id);
@@ -54,7 +55,7 @@ export default async function Transactions({
   }));
 
   const wallets = await prisma.wallet.findMany({
-    where: { userId: user.sub },
+    where: { userId: user.id },
     select: walletSelect,
   });
   const categories = await prisma.category.findMany({ select: categorySelect });
@@ -62,7 +63,7 @@ export default async function Transactions({
   const pages = Math.ceil(transactionCount / amountPerPage);
 
   return (
-    <DashboardLayout title="Transactions" user={user}>
+    <DashboardLayout title="Transactions" views={views}>
       <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
         <CreateTransactionForm wallets={wallets} categories={categories} />
       </div>

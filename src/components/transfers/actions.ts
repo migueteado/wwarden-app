@@ -68,6 +68,7 @@ export async function createTransfer(data: CreateTransferInput) {
           data: {
             fee: data.fee ?? 0,
             feeUSD: fromAmountUSD - toAmountUSD,
+            date: new Date(data.date),
           },
         }),
         prisma.wallet.update({

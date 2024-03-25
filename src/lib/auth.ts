@@ -1,29 +1,45 @@
 import { cookies } from "next/headers";
-import { JWTPayload, verifyJWT } from "./jwt";
+import { verifyJWT } from "./jwt";
 import prisma from "./prisma";
 
-export const getUser = async (): Promise<JWTPayload | null> => {
+export type View = {
+  type: "user" | "household";
+  id: string;
+  name: string;
+};
+
+export const getViews = async (): Promise<View[] | []> => {
+  const views: View[] = [];
   const token = cookies().get("token")?.value;
 
   if (!token) {
-    return null;
+    return views;
   }
 
   const user = await verifyJWT(token);
+  views.push({
+    type: "user",
+    id: user.sub,
+    name: user.username,
+  });
 
-  return user;
-};
-
-export const getHouseholds = async (userId: string) => {
   const households = await prisma.household.findMany({
     where: {
       members: {
         some: {
-          userId,
+          userId: user.sub,
         },
       },
     },
   });
 
-  return households;
+  households.forEach((household) => {
+    views.push({
+      type: "household",
+      id: household.id,
+      name: household.name,
+    });
+  });
+
+  return views;
 };

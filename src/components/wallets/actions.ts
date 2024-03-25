@@ -7,6 +7,7 @@ import { DeleteWalletInput } from "../wallets/wallet-actions";
 import { UpdateWalletInput } from "../wallets/wallet-actions";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { CreateHouseholdWalletInput } from "./create-household-wallet-form";
 
 export async function createWallet(data: CreateWalletInput) {
   try {
@@ -152,6 +153,52 @@ export async function deleteWallet(data: DeleteWalletInput) {
     return {
       status: true,
       data: { wallet: { ...wallet, balance: Number(wallet.balance) } },
+    };
+  } catch (err: unknown) {
+    return {
+      status: false,
+      message: (err as Error).message,
+    };
+  }
+}
+
+export async function createHouseholdWallet(data: CreateHouseholdWalletInput) {
+  try {
+    const { date, householdId, ...rest } = data;
+    const token = cookies().get("token")?.value ?? "";
+
+    if (!token) {
+      throw new Error("Unauthorized");
+    }
+
+    const { sub } = await verifyJWT(token);
+    const user = await prisma.user.findUnique({ where: { id: sub } });
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const household = await prisma.household.findUnique({
+      where: { id: data.householdId, members: { some: { userId: user.id } } },
+    });
+
+    if (!household) {
+      throw new Error("Household not found");
+    }
+
+    const wallet = await prisma.wallet.create({
+      data: {
+        ...rest,
+        householdWallets: {
+          create: {
+            householdId: householdId,
+          },
+        },
+      },
+    });
+
+    return {
+      status: true,
+      data: { wallet },
     };
   } catch (err: unknown) {
     return {
