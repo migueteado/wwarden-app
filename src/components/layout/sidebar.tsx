@@ -13,6 +13,7 @@ import {
   PercentIcon,
   ReceiptIcon,
   UserIcon,
+  WalletCardsIcon,
   WalletIcon,
 } from "lucide-react";
 import {
@@ -32,6 +33,7 @@ import { useRouter } from "next/navigation";
 const menuItems = [
   { title: "Dashboard", href: "/dashboard/", icon: LayoutDashboardIcon },
   { title: "Wallets", href: "/dashboard/wallets", icon: WalletIcon },
+  { title: "Pockets", href: "/dashboard/pockets", icon: WalletCardsIcon },
   {
     title: "Transfers",
     href: "/dashboard/transfers",
@@ -39,7 +41,6 @@ const menuItems = [
   },
   { title: "Transactions", href: "/dashboard/transactions", icon: ReceiptIcon },
   { title: "Exchange Rates", href: "/exchange", icon: PercentIcon },
-  { title: "Households", href: "/households", icon: HomeIcon },
 ];
 
 export function Sidebar({ views, isOpen }: { views: View[]; isOpen: boolean }) {
@@ -116,6 +117,11 @@ export function Sidebar({ views, isOpen }: { views: View[]; isOpen: boolean }) {
               <DropdownMenuItem>
                 <Link href="/dashboard/profile" className="flex w-full">
                   <UserIcon className="w-4 h-4 mr-2" /> Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/households" className="flex w-full">
+                  <HomeIcon className="w-4 h-4 mr-2" /> Households
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut}>

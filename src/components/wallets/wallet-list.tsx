@@ -30,7 +30,7 @@ import {
 import { CustomWallet } from "./custom-types";
 import Cookies from "js-cookie";
 import { Avatar } from "../avatar";
-import { View } from "@/lib/auth";
+import Link from "next/link";
 
 const columns: ColumnDef<CustomWallet>[] = [
   {
@@ -49,13 +49,24 @@ const columns: ColumnDef<CustomWallet>[] = [
 
               <div>{wallet.user.username}</div>
             </div>
-            <div>{wallet.name}</div>
+            <div>
+              <Link
+                href={`/dashboard/wallets/${wallet.id}`}
+                className="underline"
+              >
+                {wallet.name}
+              </Link>
+            </div>
           </div>
         );
       }
 
       return (
-        <div className="flex items-center justify-start">{wallet.name}</div>
+        <div className="flex items-center justify-start">
+          <Link href={`/dashboard/wallets/${wallet.id}`} className="underline">
+            {wallet.name}
+          </Link>
+        </div>
       );
     },
   },
