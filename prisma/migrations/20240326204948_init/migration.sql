@@ -2,7 +2,7 @@
 CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE', 'ADJUSTMENT');
 
 -- CreateEnum
-CREATE TYPE "Currency" AS ENUM ('USD', 'COP', 'EUR', 'GBP', 'USDT', 'ETH', 'SOL', 'ADA', 'BTC');
+CREATE TYPE "Currency" AS ENUM ('USD', 'COP', 'EUR', 'GBP', 'VES');
 
 -- CreateEnum
 CREATE TYPE "HouseholdMemberType" AS ENUM ('OWNER', 'MEMBER', 'GUEST');
@@ -12,8 +12,6 @@ CREATE TABLE "Category" (
     "id" TEXT NOT NULL,
     "type" "TransactionType" NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -23,8 +21,6 @@ CREATE TABLE "Subcategory" (
     "id" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Subcategory_pkey" PRIMARY KEY ("id")
 );
@@ -49,8 +45,6 @@ CREATE TABLE "Wallet" (
     "userId" TEXT NOT NULL,
     "currency" "Currency" NOT NULL,
     "balance" DECIMAL(10,2) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Wallet_pkey" PRIMARY KEY ("id")
 );
@@ -63,12 +57,11 @@ CREATE TABLE "Transaction" (
     "subcategoryId" TEXT NOT NULL,
     "type" "TransactionType" NOT NULL,
     "amount" DECIMAL(10,2) NOT NULL,
+    "amountUSD" DECIMAL(10,2) NOT NULL,
     "entity" TEXT,
     "description" TEXT,
     "date" TIMESTAMP(3) NOT NULL,
     "transferId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -77,8 +70,8 @@ CREATE TABLE "Transaction" (
 CREATE TABLE "Transfer" (
     "id" TEXT NOT NULL,
     "fee" DECIMAL(10,2) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "feeUSD" DECIMAL(10,2) NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Transfer_pkey" PRIMARY KEY ("id")
 );
@@ -87,8 +80,6 @@ CREATE TABLE "Transfer" (
 CREATE TABLE "Household" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Household_pkey" PRIMARY KEY ("id")
 );
@@ -99,8 +90,6 @@ CREATE TABLE "HouseholdMember" (
     "householdId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" "HouseholdMemberType" NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "HouseholdMember_pkey" PRIMARY KEY ("id")
 );
@@ -110,10 +99,40 @@ CREATE TABLE "HouseholdWallet" (
     "id" TEXT NOT NULL,
     "householdId" TEXT NOT NULL,
     "walletId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "HouseholdWallet_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ExchangeRate" (
+    "id" TEXT NOT NULL,
+    "data" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ExchangeRate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Pocket" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "walletId" TEXT NOT NULL,
+    "balance" DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT "Pocket_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PocketTransaction" (
+    "id" TEXT NOT NULL,
+    "pocketId" TEXT NOT NULL,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "amountUSD" DECIMAL(10,2) NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "description" TEXT,
+    "transactionId" TEXT,
+
+    CONSTRAINT "PocketTransaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -136,6 +155,12 @@ CREATE UNIQUE INDEX "HouseholdMember_householdId_userId_key" ON "HouseholdMember
 
 -- CreateIndex
 CREATE UNIQUE INDEX "HouseholdWallet_householdId_walletId_key" ON "HouseholdWallet"("householdId", "walletId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Pocket_name_walletId_key" ON "Pocket"("name", "walletId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PocketTransaction_transactionId_key" ON "PocketTransaction"("transactionId");
 
 -- AddForeignKey
 ALTER TABLE "Subcategory" ADD CONSTRAINT "Subcategory_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -166,3 +191,12 @@ ALTER TABLE "HouseholdWallet" ADD CONSTRAINT "HouseholdWallet_householdId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "HouseholdWallet" ADD CONSTRAINT "HouseholdWallet_walletId_fkey" FOREIGN KEY ("walletId") REFERENCES "Wallet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Pocket" ADD CONSTRAINT "Pocket_walletId_fkey" FOREIGN KEY ("walletId") REFERENCES "Wallet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PocketTransaction" ADD CONSTRAINT "PocketTransaction_pocketId_fkey" FOREIGN KEY ("pocketId") REFERENCES "Pocket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PocketTransaction" ADD CONSTRAINT "PocketTransaction_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction"("id") ON DELETE CASCADE ON UPDATE CASCADE;

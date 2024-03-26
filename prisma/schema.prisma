@@ -25,11 +25,7 @@ enum Currency {
   COP
   EUR
   GBP
-  USDT
-  ETH
-  SOL
-  ADA
-  BTC
+  VES
 }
 
 model Category {
@@ -38,8 +34,6 @@ model Category {
   name                              String                              @unique
   subcategories                     Subcategory[]
   transactions                      Transaction[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 }
 
 model Subcategory {
@@ -48,8 +42,6 @@ model Subcategory {
   category                          Category                         @relation(fields: [categoryId], references: [id])
   name                              String                              
   transactions                      Transaction[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 
   @@unique([categoryId, name])
 }
@@ -75,8 +67,7 @@ model Wallet {
   balance                           Decimal                             @db.Decimal(10, 2)
   transactions                      Transaction[]
   householdWallets                  HouseholdWallet[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
+  pockets                           Pocket[]
 
   @@unique([name, userId])
 }
@@ -97,8 +88,7 @@ model Transaction {
   date                              DateTime
   transferId                        String?
   transfer                          Transfer?                           @relation(fields: [transferId], references: [id], onDelete: Cascade)
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
+  pocketTransaction                 PocketTransaction?
 }
 
 model Transfer {
@@ -107,8 +97,6 @@ model Transfer {
   fee                               Decimal                             @db.Decimal(10, 2)
   feeUSD                            Decimal                             @db.Decimal(10, 2)
   date                              DateTime
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 }
 
 model Household {
@@ -116,8 +104,6 @@ model Household {
   name                              String
   members                           HouseholdMember[]
   wallets                           HouseholdWallet[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 }
 
 enum HouseholdMemberType {
@@ -133,8 +119,6 @@ model HouseholdMember {
   userId                            String
   user                              User                                @relation(fields: [userId], references: [id], onDelete: Cascade)
   type                              HouseholdMemberType
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 
   @@unique([householdId, userId])
 }
@@ -145,8 +129,6 @@ model HouseholdWallet {
   household                         Household                           @relation(fields: [householdId], references: [id], onDelete: Cascade)
   walletId                          String
   wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
 
   @@unique([householdId, walletId])
 }
@@ -155,5 +137,28 @@ model ExchangeRate {
   id                                String                              @id @default(uuid())
   data                              Json
   createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
+}
+
+model Pocket {
+  id                                String                              @id @default(uuid())
+  name                              String
+  walletId                          String
+  wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  balance                           Decimal                             @db.Decimal(10, 2)
+  transactions                      PocketTransaction[]
+
+  @@unique([name, walletId])
+}
+
+
+model PocketTransaction {
+  id                                String                              @id @default(uuid())
+  pocketId                          String
+  pocket                            Pocket                              @relation(fields: [pocketId], references: [id], onDelete: Cascade)
+  amount                            Decimal                             @db.Decimal(10, 2)
+  amountUSD                         Decimal                             @db.Decimal(10, 2)
+  date                              DateTime
+  description                       String?
+  transactionId                     String?                             @unique
+  transaction                       Transaction?                        @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 }
