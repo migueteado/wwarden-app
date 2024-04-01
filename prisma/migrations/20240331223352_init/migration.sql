@@ -60,8 +60,10 @@ CREATE TABLE "Transaction" (
     "amountUSD" DECIMAL(10,2) NOT NULL,
     "entity" TEXT,
     "description" TEXT,
-    "date" TIMESTAMP(3) NOT NULL,
+    "date" DATE NOT NULL,
     "transferId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -71,7 +73,7 @@ CREATE TABLE "Transfer" (
     "id" TEXT NOT NULL,
     "fee" DECIMAL(10,2) NOT NULL,
     "feeUSD" DECIMAL(10,2) NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
+    "date" DATE NOT NULL,
 
     CONSTRAINT "Transfer_pkey" PRIMARY KEY ("id")
 );
@@ -128,11 +130,29 @@ CREATE TABLE "PocketTransaction" (
     "pocketId" TEXT NOT NULL,
     "amount" DECIMAL(10,2) NOT NULL,
     "amountUSD" DECIMAL(10,2) NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
+    "date" DATE NOT NULL,
     "description" TEXT,
     "transactionId" TEXT,
 
     CONSTRAINT "PocketTransaction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Budget" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "householdId" TEXT,
+    "categoryId" TEXT NOT NULL,
+    "subcategoryId" TEXT,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "amountUSD" DECIMAL(10,2) NOT NULL,
+    "period" TEXT NOT NULL,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" DATE NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Budget_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -200,3 +220,15 @@ ALTER TABLE "PocketTransaction" ADD CONSTRAINT "PocketTransaction_pocketId_fkey"
 
 -- AddForeignKey
 ALTER TABLE "PocketTransaction" ADD CONSTRAINT "PocketTransaction_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Budget" ADD CONSTRAINT "Budget_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Budget" ADD CONSTRAINT "Budget_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Budget" ADD CONSTRAINT "Budget_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Budget" ADD CONSTRAINT "Budget_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "Subcategory"("id") ON DELETE CASCADE ON UPDATE CASCADE;

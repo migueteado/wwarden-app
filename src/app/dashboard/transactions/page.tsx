@@ -26,17 +26,23 @@ export default async function Transactions({
   const page = searchParams.page ? Number(searchParams.page) : 1;
   const skip = (page - 1) * amountPerPage;
   const take = amountPerPage;
+  const walletsQuery = searchParams.wallets
+    ? searchParams.wallets.split(",")
+    : [];
 
   if (!user) {
     redirect("/auth/signin");
   }
 
-  const walletIds = (
-    await prisma.wallet.findMany({
-      where: { userId: user.id },
-      select: { id: true },
-    })
-  ).map((wallet) => wallet.id);
+  const walletIds =
+    walletsQuery.length > 0
+      ? walletsQuery
+      : (
+          await prisma.wallet.findMany({
+            where: { userId: user.id },
+            select: { id: true },
+          })
+        ).map((wallet) => wallet.id);
   const transactionCount = await prisma.transaction.count({
     where: { walletId: { in: walletIds } },
   });
@@ -67,7 +73,7 @@ export default async function Transactions({
 
   return (
     <DashboardLayout title="Transactions" views={views}>
-      <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
+      <div className="flex">
         <CreateTransactionForm wallets={wallets} categories={categories} />
       </div>
       <div className="py-2 flex justify-center items-center">

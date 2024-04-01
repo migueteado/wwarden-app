@@ -62,7 +62,7 @@ export default async function Wallets({
 
     return (
       <DashboardLayout title="Wallets" views={views}>
-        <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
+        <div className="flex">
           <CreateWalletForm />
         </div>
         <div className="py-2 flex justify-center items-center">
@@ -100,7 +100,7 @@ export default async function Wallets({
 
   return (
     <DashboardLayout title="Wallets" views={views}>
-      <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
+      <div className="flex">
         <CreateWalletForm />
       </div>
       <div className="py-2 flex justify-center items-center">

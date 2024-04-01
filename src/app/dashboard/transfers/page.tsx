@@ -136,7 +136,7 @@ export default async function Transfers({
 
   return (
     <DashboardLayout title="Transfers" views={views}>
-      <div className="fixed z-50 bottom-8 right-8 lg:bottom-12 lg:right-12">
+      <div className="flex">
         <CreateTransferForm wallets={wallets} />
       </div>
       <div className="py-2 flex justify-center items-center">

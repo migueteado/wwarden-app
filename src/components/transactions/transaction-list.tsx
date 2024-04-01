@@ -24,9 +24,86 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "../ui/button";
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CustomCategory, CustomTransaction, CustomWallet } from "./custom-type";
 import TransactionActions from "./transaction-actions";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FilterIcon } from "lucide-react";
+
+interface TransactionFiltersProps {
+  wallets: CustomWallet[];
+}
+
+export function TransactionFilters({ wallets }: TransactionFiltersProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedWalletsState, setSelectedWalletsState] = React.useState<
+    string[]
+  >(searchParams.get("wallets")?.split(",") ?? wallets.map((w) => w.id));
+
+  const applyFilters = React.useCallback(() => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    if (selectedWalletsState.length >= wallets.length) {
+      current.delete("wallets");
+    } else {
+      current.set("wallets", selectedWalletsState.join(","));
+    }
+    current.delete("page");
+    router.push(`${pathname}?${current.toString()}`);
+    setIsOpen(false);
+  }, [pathname, router, searchParams, selectedWalletsState, wallets]);
+
+  const handleWalletSelect = (walletId: string) => {
+    const selectedWallets = selectedWalletsState.includes(walletId)
+      ? selectedWalletsState.filter((id) => id !== walletId)
+      : [...selectedWalletsState, walletId];
+
+    setSelectedWalletsState(selectedWallets);
+  };
+
+  return (
+    <DropdownMenu open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          <FilterIcon className="h-4 w-4 mr-2" /> Filters
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>Wallets</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {wallets.map((wallet) => (
+          <DropdownMenuCheckboxItem
+            key={wallet.id}
+            checked={selectedWalletsState?.includes(wallet.id)}
+            onClick={(e) => {
+              e.preventDefault();
+              handleWalletSelect(wallet.id);
+            }}
+          >
+            {wallet.name}
+          </DropdownMenuCheckboxItem>
+        ))}
+        <DropdownMenuSeparator />
+        <Button
+          variant={"outline"}
+          className="w-full"
+          onClick={() => applyFilters()}
+        >
+          Apply Filters
+        </Button>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export const columns: ColumnDef<
   CustomTransaction & { wallets: CustomWallet[]; categories: CustomCategory[] }
@@ -289,17 +366,25 @@ export function TransactionList({
 }: TransactionListProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   function nextPage() {
-    router.push(`${pathname}?page=${page + 1}`);
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set("page", String(page + 1));
+    router.push(`${pathname}?${current.toString()}`);
   }
 
   function prevPage() {
-    router.push(`${pathname}?page=${page - 1}`);
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set("page", String(page - 1));
+    router.push(`${pathname}?${current.toString()}`);
   }
 
   return (
     <div className="flex flex-col w-full">
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <TransactionFilters wallets={wallets} />
+      </div>
       <DataTable
         columns={columns}
         data={transactions.map((t) => ({

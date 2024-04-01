@@ -29,36 +29,39 @@ enum Currency {
 }
 
 model Category {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   type                              TransactionType
   name                              String                              @unique
   subcategories                     Subcategory[]
   transactions                      Transaction[]
+  budgets                           Budget[]
 }
 
 model Subcategory {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   categoryId                        String
   category                          Category                         @relation(fields: [categoryId], references: [id])
   name                              String                              
   transactions                      Transaction[]
+  budgets                           Budget[]
 
   @@unique([categoryId, name])
 }
 
 model User {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   username                          String                              @unique
   email                             String                              @unique
   password                          String
   wallets                           Wallet[]
+  budgets                           Budget[]
   households                        HouseholdMember[]
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
 }
 
 model Wallet {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   platform                          String
   name                              String                              
   userId                            String
@@ -73,7 +76,7 @@ model Wallet {
 }
 
 model Transaction {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   walletId                          String
   wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
   categoryId                        String
@@ -85,25 +88,28 @@ model Transaction {
   amountUSD                         Decimal                             @db.Decimal(10, 2)
   entity                            String?
   description                       String?
-  date                              DateTime
+  date                              DateTime                            @db.Date
   transferId                        String?
   transfer                          Transfer?                           @relation(fields: [transferId], references: [id], onDelete: Cascade)
   pocketTransaction                 PocketTransaction?
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
 }
 
 model Transfer {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   transactions                      Transaction[]         
   fee                               Decimal                             @db.Decimal(10, 2)
   feeUSD                            Decimal                             @db.Decimal(10, 2)
-  date                              DateTime
+  date                              DateTime                            @db.Date
 }
 
 model Household {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   name                              String
   members                           HouseholdMember[]
   wallets                           HouseholdWallet[]
+  budgets                           Budget[]
 }
 
 enum HouseholdMemberType {
@@ -113,7 +119,7 @@ enum HouseholdMemberType {
 }
 
 model HouseholdMember {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   householdId                       String
   household                         Household                           @relation(fields: [householdId], references: [id], onDelete: Cascade)
   userId                            String
@@ -124,7 +130,7 @@ model HouseholdMember {
 }
 
 model HouseholdWallet {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   householdId                       String
   household                         Household                           @relation(fields: [householdId], references: [id], onDelete: Cascade)
   walletId                          String
@@ -134,13 +140,13 @@ model HouseholdWallet {
 }
 
 model ExchangeRate {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   data                              Json
   createdAt                         DateTime                            @default(now())
 }
 
 model Pocket {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   name                              String
   walletId                          String
   wallet                            Wallet                              @relation(fields: [walletId], references: [id], onDelete: Cascade)
@@ -152,13 +158,32 @@ model Pocket {
 
 
 model PocketTransaction {
-  id                                String                              @id @default(uuid())
+  id                                String                              @id @default(cuid())
   pocketId                          String
   pocket                            Pocket                              @relation(fields: [pocketId], references: [id], onDelete: Cascade)
   amount                            Decimal                             @db.Decimal(10, 2)
   amountUSD                         Decimal                             @db.Decimal(10, 2)
-  date                              DateTime
+  date                              DateTime                            @db.Date
   description                       String?
   transactionId                     String?                             @unique
   transaction                       Transaction?                        @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id                                String                              @id @default(cuid())
+  userId                            String?
+  user                              User?                               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId                       String?
+  household                         Household?                          @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  categoryId                        String
+  category                          Category                            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategoryId                     String?
+  subcategory                       Subcategory?                        @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  amount                            Decimal                             @db.Decimal(10, 2)
+  amountUSD                         Decimal                             @db.Decimal(10, 2)
+  period                            String
+  startDate                         DateTime
+  endDate                           DateTime                            @db.Date
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime                            @updatedAt
 }
