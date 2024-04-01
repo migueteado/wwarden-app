@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FilterIcon } from "lucide-react";
+import CreateTransactionForm from "./create-transaction-form";
 
 interface TransactionFiltersProps {
   wallets: CustomWallet[];
@@ -52,7 +53,10 @@ export function TransactionFilters({ wallets }: TransactionFiltersProps) {
 
   const applyFilters = React.useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
-    if (selectedWalletsState.length >= wallets.length) {
+    if (
+      selectedWalletsState.length >= wallets.length ||
+      !selectedWalletsState.length
+    ) {
       current.delete("wallets");
     } else {
       current.set("wallets", selectedWalletsState.join(","));
@@ -382,7 +386,8 @@ export function TransactionList({
 
   return (
     <div className="flex flex-col w-full">
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <CreateTransactionForm wallets={wallets} categories={categories} />
         <TransactionFilters wallets={wallets} />
       </div>
       <DataTable

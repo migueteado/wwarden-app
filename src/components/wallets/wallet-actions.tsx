@@ -3,7 +3,7 @@
 import React from "react";
 import { Dialog, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { MoreHorizontal, Pencil, ReceiptIcon, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import {
 import { CustomWallet } from "./custom-types";
 import { DeleteWalletForm } from "./delete-wallet-form";
 import { UpdateWalletForm } from "./update-wallet-form";
+import Link from "next/link";
 
 interface WalletActionsProps {
   wallet: CustomWallet;
@@ -37,6 +38,12 @@ export default function WalletActions({ wallet }: WalletActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <Link href={`/dashboard/transactions?wallets=${wallet.id}`}>
+            <DropdownMenuItem>
+              <ReceiptIcon className="h-4 w-4 mr-2" />
+              Transactions
+            </DropdownMenuItem>
+          </Link>
           <DialogTrigger className="w-full" onClick={() => setDialog("update")}>
             <DropdownMenuItem>
               <Pencil className="h-4 w-4 mr-2" />

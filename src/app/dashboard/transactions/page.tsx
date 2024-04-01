@@ -73,9 +73,6 @@ export default async function Transactions({
 
   return (
     <DashboardLayout title="Transactions" views={views}>
-      <div className="flex">
-        <CreateTransactionForm wallets={wallets} categories={categories} />
-      </div>
       <div className="py-2 flex justify-center items-center">
         <TransactionList
           transactions={transactions}
